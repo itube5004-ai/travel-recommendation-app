@@ -173,6 +173,24 @@ function normalizeDestinations() {
                 if (!dest.quickInfo.months) dest.quickInfo.months = dest.quickInfo.bestTime || '연중무휴';
             }
 
+            // Set sensible defaults for international quickInfo properties
+            if (dest.location === 'international') {
+                if (!dest.quickInfo.months) {
+                    if (dest.bestSeasons) {
+                        var seasonsKor = [];
+                        dest.bestSeasons.forEach(function(s) {
+                            if (s === 'spring') seasonsKor.push('봄 (3~5월)');
+                            else if (s === 'summer') seasonsKor.push('여름 (6~8월)');
+                            else if (s === 'autumn') seasonsKor.push('가을 (9~11월)');
+                            else if (s === 'winter') seasonsKor.push('겨울 (12~2월)');
+                        });
+                        dest.quickInfo.months = seasonsKor.join(', ');
+                    } else {
+                        dest.quickInfo.months = '연중무휴';
+                    }
+                }
+            }
+
             // 3. Normalize temp: map weather (old) to quickInfo.temp
             if (!dest.quickInfo.temp && dest.weather) {
                 dest.quickInfo.temp = {};
