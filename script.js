@@ -72,7 +72,161 @@ const DOM = {
     restartBtn: document.getElementById('restart-btn')
 };
 
+function normalizeDestinations() {
+    if (typeof destinations !== 'undefined') {
+        destinations.forEach(function(dest) {
+            // 1. Ensure location is defined
+            if (!dest.location) {
+                dest.location = dest.id.indexOf('d') === 0 ? 'domestic' : 'international';
+            }
+            
+            // 2. Ensure quickInfo is fully populated
+            if (!dest.quickInfo) {
+                dest.quickInfo = {};
+            }
+            
+            // If flight is at top level, map to quickInfo.flight
+            if (dest.flight && !dest.quickInfo.flight) {
+                dest.quickInfo.flight = dest.flight === 'short' ? '3시간 이내' : (dest.flight === 'medium' ? '3~6시간' : '6시간 이상');
+            }
+            
+            // Set sensible defaults for domestic quickInfo properties
+            if (dest.location === 'domestic') {
+                if (!dest.quickInfo.voltage) dest.quickInfo.voltage = '220V';
+                if (!dest.quickInfo.visa) dest.quickInfo.visa = '국내 (해당없음)';
+                if (!dest.quickInfo.months) dest.quickInfo.months = dest.quickInfo.bestTime || '연중무휴';
+                if (!dest.quickInfo.flight && dest.quickInfo.transport) dest.quickInfo.flight = dest.quickInfo.transport;
+            }
+
+            // 3. Normalize temp: map weather (old) to quickInfo.temp
+            if (!dest.quickInfo.temp && dest.weather) {
+                dest.quickInfo.temp = {};
+                var seasons = ['spring', 'summer', 'autumn', 'winter'];
+                for (var i = 0; i < seasons.length; i++) {
+                    var s = seasons[i];
+                    if (dest.weather[s]) {
+                        var rawTemp = dest.weather[s];
+                        var bracketIdx = rawTemp.indexOf('(');
+                        if (bracketIdx !== -1) {
+                            dest.quickInfo.temp[s] = rawTemp.substring(0, bracketIdx).replace(/^\s+|\s+$/g, '');
+                        } else {
+                            dest.quickInfo.temp[s] = rawTemp;
+                        }
+                    }
+                }
+            }
+
+            // 4. Normalize details (spots, food, hotel, courses, weatherDesc)
+            if (!dest.details) {
+                dest.details = {};
+                
+                // Map spots
+                if (dest.spots) {
+                    dest.details.spots = dest.spots.map(function(s) { return s.name; }).join(', ');
+                } else {
+                    dest.details.spots = '';
+                }
+
+                // Map food
+                if (dest.food) {
+                    if (typeof dest.food[0] === 'object') {
+                        dest.details.food = dest.food.map(function(f) { return f.name; }).join(', ');
+                    } else {
+                        dest.details.food = dest.food.join(', ');
+                    }
+                } else {
+                    dest.details.food = '';
+                }
+
+                // Map hotel
+                if (dest.hotels) {
+                    dest.details.hotel = dest.hotels.map(function(h) { return h.name; }).join(', ');
+                } else if (dest.hotel) {
+                    if (typeof dest.hotel === 'string') {
+                        dest.details.hotel = dest.hotel;
+                    } else if (typeof dest.hotel === 'object' && dest.hotel.join) {
+                        dest.details.hotel = dest.hotel.join(', ');
+                    } else {
+                        dest.details.hotel = '';
+                    }
+                } else {
+                    dest.details.hotel = '주변 주요 호텔 및 게스트하우스';
+                }
+
+                // Map weatherDesc
+                dest.details.weatherDesc = {};
+                if (dest.weather) {
+                    var seasons = ['spring', 'summer', 'autumn', 'winter'];
+                    for (var i = 0; i < seasons.length; i++) {
+                        var s = seasons[i];
+                        if (dest.weather[s]) {
+                            var rawTemp = dest.weather[s];
+                            var start = rawTemp.indexOf('(');
+                            var end = rawTemp.lastIndexOf(')');
+                            if (start !== -1 && end !== -1) {
+                                dest.details.weatherDesc[s] = rawTemp.substring(start + 1, end);
+                            } else {
+                                dest.details.weatherDesc[s] = rawTemp;
+                            }
+                        }
+                    }
+                } else {
+                    dest.details.weatherDesc = { spring: '여행하기 좋은 선선한 날씨입니다.', summer: '야외 활동에 어울리는 여름 기후입니다.', autumn: '맑고 선선하여 걷기 좋은 날씨입니다.', winter: '따뜻한 외투가 필요한 계절입니다.' };
+                }
+
+                // Map shopping
+                if (dest.location === 'international' && dest.shopping) {
+                    dest.details.shopping = typeof dest.shopping === 'string' ? dest.shopping : dest.shopping.join(', ');
+                }
+
+                // Map courses
+                dest.details.courses = {};
+                if (dest.courses) {
+                    dest.courses.forEach(function(c) {
+                        var t = c.title.toLowerCase();
+                        var schedStr = c.schedule.join(' | ');
+                        if (t.indexOf('당일') !== -1 || t.indexOf('하루') !== -1) {
+                            dest.details.courses['day'] = schedStr;
+                        } else if (t.indexOf('2박') !== -1 || t.indexOf('2~3') !== -1 || t.indexOf('3일') !== -1) {
+                            dest.details.courses['2-3'] = schedStr;
+                        } else if (t.indexOf('4~5') !== -1 || t.indexOf('4박') !== -1 || t.indexOf('5일') !== -1) {
+                            dest.details.courses['4-5'] = schedStr;
+                        } else if (t.indexOf('4~6') !== -1 || t.indexOf('6일') !== -1) {
+                            dest.details.courses['4-6'] = schedStr;
+                        } else if (t.indexOf('7~14') !== -1 || t.indexOf('1주') !== -1 || t.indexOf('2주') !== -1 || t.indexOf('이상') !== -1) {
+                            dest.details.courses['7-14'] = schedStr;
+                        } else {
+                            if (!dest.details.courses['2-3']) dest.details.courses['2-3'] = schedStr;
+                        }
+                    });
+                    
+                    var possibleKeys = dest.location === 'domestic' ? ['day', '2-3', '4-5'] : ['2-3', '4-6', '7-14'];
+                    possibleKeys.forEach(function(k) {
+                        if (!dest.details.courses[k]) {
+                            for (var firstKey in dest.details.courses) {
+                                dest.details.courses[k] = dest.details.courses[firstKey];
+                                break;
+                            }
+                        }
+                    });
+                }
+            } else {
+                if (dest.details.spots && typeof dest.details.spots === 'object' && dest.details.spots.join) {
+                    dest.details.spots = dest.details.spots.join(', ');
+                }
+                if (dest.details.food && typeof dest.details.food === 'object' && dest.details.food.join) {
+                    dest.details.food = dest.details.food.join(', ');
+                }
+                if (dest.details.hotel && typeof dest.details.hotel === 'object' && dest.details.hotel.join) {
+                    dest.details.hotel = dest.details.hotel.join(', ');
+                }
+            }
+        });
+    }
+}
+
 function initApp() {
+    normalizeDestinations();
     currentStep = 0;
     userAnswers = {};
     activeQuestions = getActiveQuestions();
