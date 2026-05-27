@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대.떠.남이 추천하는 나에게 맞는 여행지 ✈️</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="container">
+        <header class="hero">
+            <h1>대.떠.남이 추천하는 나에게 맞는 여행지 ✈️</h1>
+            <p>몇 가지 질문에 답하고 나에게 딱 맞는 여행지를 추천받으세요.</p>
+        </header>
+
+        <section class="glass-panel quiz-container" id="quiz-section">
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div id="quiz-content" class="quiz-content">
+                <!-- Quiz steps will be injected here by JS -->
+            </div>
+            
+            <div class="quiz-controls">
+                <button id="prev-btn" class="btn btn-secondary hidden">이전</button>
+            </div>
+        </section>
+
+        <section class="glass-panel results-container hidden" id="results-section">
+            <h2>🎉 추천 여행지 🎉</h2>
+            <p id="results-subtitle" class="results-subtitle">선택하신 취향에 맞는 최고의 목적지입니다.</p>
+            <div id="results-grid" class="results-grid">
+                <!-- Results will be injected here -->
+            </div>
+            <button id="restart-btn" class="btn btn-primary mt-4">다시 추천받기</button>
+        </section>
+
+        <!-- Details Modal -->
+        <div id="details-modal" class="modal-overlay hidden">
+            <div class="modal-content glass-panel">
+                <button id="close-modal-btn" class="close-btn">&times;</button>
+                <div id="modal-body">
+                    <!-- Dynamic content goes here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
