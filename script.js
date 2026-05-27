@@ -72,13 +72,88 @@ const DOM = {
     restartBtn: document.getElementById('restart-btn')
 };
 
+function getCheonanTravelTime(id) {
+    var times = {
+        'd1': 'KTX 40분 / 차 1시간 10분',
+        'd2': 'KTX 2시간 10분 / 차 3시간 30분',
+        'd3': '자가용 약 1시간 20분',
+        'd4': 'KTX 1시간 10분 / 차 2시간 10분',
+        'd5': 'KTX 20분 / 차 40분',
+        'd6': 'KTX 1시간 20분 / 차 2시간',
+        'd7': 'KTX 1시간 50분 / 차 3시간',
+        'd8': '자가용 약 30분',
+        'd9': '청주공항 경유 비행기 약 2시간',
+        'd10': '전철 30분 / 차 45분',
+        'd11': '자가용 약 2시간',
+        'd12': '자가용 약 2시간 40분',
+        'd13': '자가용 약 2시간 50분',
+        'd14': '자가용 약 2시간 10분',
+        'd15': '자가용 약 2시간 40분',
+        'd16': 'KTX 1시간 30분 / 차 2시간 40분',
+        'd17': 'KTX 2시간 30분 / 차 3시간',
+        'd18': '자가용 약 1시간 20분',
+        'd19': 'KTX 2시간 / 차 3시간',
+        'd20': 'KTX 2시간 10분 / 차 2시간 40분',
+        'd21': '자가용 약 2시간',
+        'd22': '자가용 약 3시간',
+        'd23': '자가용 약 2시간 10분',
+        'd24': 'KTX 1시간 40분 / 차 2시간 50분',
+        'd25': 'KTX 2시간 10분 / 차 3시간',
+        'd26': '자가용 10~20분 (초근접!)',
+        'd27': '자가용 약 35분',
+        'd28': '자가용 약 45분',
+        'd29': '자가용 약 1시간 40분',
+        'd30': '자가용 약 1시간 20분',
+        'd31': '자가용 약 1시간 30분',
+        'd32': '자가용 약 3시간 10분',
+        'd33': '자가용 약 3시간 30분',
+        'd34': '자가용 약 2시간 50분',
+        'd35': '자가용 약 1시간 50분',
+        'd36': '자가용 약 1시간 30분',
+        'd37': '자가용 약 2시간 40분',
+        'd38': '자가용 약 2시간 20분',
+        'd39': '자가용 약 3시간 50분',
+        'd40': '자가용 약 3시간 40분',
+        'd41': '자가용 약 1시간',
+        'd42': '자가용 약 1시간 30분',
+        'd43': '자가용 약 3시간 10분',
+        'd44': '자가용 약 2시간 50분',
+        'd45': '자가용 약 2시간 50분',
+        'd46': '자가용 약 2시간 40분',
+        'd47': '자가용 약 2시간 30분',
+        'd48': '자가용 약 3시간',
+        'd49': '자가용 약 1시간 30분',
+        'd50': '자가용 약 1시간 50분',
+        'd51': '자가용 약 2시간 50분',
+        'd52': '자가용 약 1시간 20분',
+        'd53': '자가용 약 1시간 40분',
+        'd54': '자가용 약 1시간 40분',
+        'd55': '자가용 약 1시간',
+        'd56': '자가용 약 1시간 35분',
+        'd57': '자가용 약 1시간 50분',
+        'd58': '자가용 약 1시간',
+        'd59': '자가용 약 30분',
+        'd60': '자가용 약 1시간',
+        'd61': '자가용 약 25분',
+        'd62': '자가용 약 35분',
+        'd63': '자가용 약 50분',
+        'd64': '자가용 약 50분',
+        'd65': '자가용 약 1시간 10분',
+        'd66': '자가용 약 1시간 30분',
+        'd67': '자가용 약 1시간 20분',
+        'd68': '자가용 약 55분',
+        'd69': '자가용 약 55분',
+        'd70': '자가용 약 1시간 15분'
+    };
+    return times[id] || '자가용/대중교통 이용';
+}
+
 function normalizeDestinations() {
     if (typeof destinations !== 'undefined') {
         destinations.forEach(function(dest) {
-            // 1. Ensure location is defined
-            if (!dest.location) {
-                dest.location = dest.id.indexOf('d') === 0 ? 'domestic' : 'international';
-            }
+            // 1. Force location to be determined robustly by ID prefix
+            var idStr = String(dest.id).toLowerCase();
+            dest.location = idStr.charAt(0) === 'd' ? 'domestic' : 'international';
             
             // 2. Ensure quickInfo is fully populated
             if (!dest.quickInfo) {
@@ -90,12 +165,12 @@ function normalizeDestinations() {
                 dest.quickInfo.flight = dest.flight === 'short' ? '3시간 이내' : (dest.flight === 'medium' ? '3~6시간' : '6시간 이상');
             }
             
-            // Set sensible defaults for domestic quickInfo properties
+            // Set sensible defaults for domestic quickInfo properties and override travel time from Cheonan Campus
             if (dest.location === 'domestic') {
+                dest.quickInfo.flight = '천안사업장 기준: ' + getCheonanTravelTime(dest.id);
                 if (!dest.quickInfo.voltage) dest.quickInfo.voltage = '220V';
                 if (!dest.quickInfo.visa) dest.quickInfo.visa = '국내 (해당없음)';
                 if (!dest.quickInfo.months) dest.quickInfo.months = dest.quickInfo.bestTime || '연중무휴';
-                if (!dest.quickInfo.flight && dest.quickInfo.transport) dest.quickInfo.flight = dest.quickInfo.transport;
             }
 
             // 3. Normalize temp: map weather (old) to quickInfo.temp
