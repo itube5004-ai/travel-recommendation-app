@@ -173,7 +173,25 @@ function normalizeDestinations() {
                 if (!dest.quickInfo.months) dest.quickInfo.months = dest.quickInfo.bestTime || '연중무휴';
             }
 
-            // 3. Normalize details (spots, food, hotel, courses, weatherDesc, shopping, temperatures)
+            // 3. Normalize temp: map weather (old) to quickInfo.temp
+            if (!dest.quickInfo.temp && dest.weather) {
+                dest.quickInfo.temp = {};
+                var seasons = ['spring', 'summer', 'autumn', 'winter'];
+                for (var i = 0; i < seasons.length; i++) {
+                    var s = seasons[i];
+                    if (dest.weather[s]) {
+                        var rawTemp = dest.weather[s];
+                        var bracketIdx = rawTemp.indexOf('(');
+                        if (bracketIdx !== -1) {
+                            dest.quickInfo.temp[s] = rawTemp.substring(0, bracketIdx).replace(/^\s+|\s+$/g, '');
+                        } else {
+                            dest.quickInfo.temp[s] = rawTemp;
+                        }
+                    }
+                }
+            }
+
+            // 4. Normalize details (spots, food, hotel, courses, weatherDesc, shopping, temperatures)
             if (!dest.details) {
                 dest.details = {};
                 
@@ -352,7 +370,8 @@ function normalizeDestinations() {
                     }
 
                     // Map courses (array of objects)
-                    if (dest.details.courses && typeof dest.details.courses.join === 'undefined') {
+                    var hasArrayCourses = dest.details.courses && typeof dest.details.courses.join === 'function' && dest.details.courses[0] && typeof dest.details.courses[0] === 'object';
+                    if (hasArrayCourses) {
                         var newCourses = {};
                         dest.details.courses.forEach(function(c) {
                             var t = c.title.toLowerCase();
@@ -650,7 +669,19 @@ function renderRecommendations(recs) {
                 
                 var courseDesc = '추천 일정이 곧 추가될 예정입니다.';
                 if (dest.details.courses) {
-                    courseDesc = dest.details.courses[userDuration] || Object.values(dest.details.courses)[0] || '추천 일정이 곧 추가될 예정입니다.';
+                    var rawCourse = dest.details.courses[userDuration] || Object.values(dest.details.courses)[0] || '추천 일정이 곧 추가될 예정입니다.';
+                    
+                    if (typeof rawCourse === 'string') {
+                        var days = rawCourse.split(' | ');
+                        courseDesc = '<div class="course-list" style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; padding-left: 0.8rem; border-left: 2px solid var(--primary);">';
+                        days.forEach(function(dayText) {
+                            var formattedDay = dayText.replace(/(\d+)일차:?/g, '<strong style="color: var(--primary);">$1Day:</strong>');
+                            courseDesc += '<div class="course-day" style="line-height: 1.4;">' + formattedDay + '</div>';
+                        });
+                        courseDesc += '</div>';
+                    } else {
+                        courseDesc = rawCourse;
+                    }
                 }
                 
                 var durationLabel = userDuration;
