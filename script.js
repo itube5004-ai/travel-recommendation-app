@@ -167,31 +167,13 @@ function normalizeDestinations() {
             
             // Set sensible defaults for domestic quickInfo properties and override travel time from Cheonan Campus
             if (dest.location === 'domestic') {
-                dest.quickInfo.flight = '천안사업장 기준: ' + getCheonanTravelTime(dest.id);
+                dest.quickInfo.flight = getCheonanTravelTime(dest.id);
                 if (!dest.quickInfo.voltage) dest.quickInfo.voltage = '220V';
                 if (!dest.quickInfo.visa) dest.quickInfo.visa = '국내 (해당없음)';
                 if (!dest.quickInfo.months) dest.quickInfo.months = dest.quickInfo.bestTime || '연중무휴';
             }
 
-            // 3. Normalize temp: map weather (old) to quickInfo.temp
-            if (!dest.quickInfo.temp && dest.weather) {
-                dest.quickInfo.temp = {};
-                var seasons = ['spring', 'summer', 'autumn', 'winter'];
-                for (var i = 0; i < seasons.length; i++) {
-                    var s = seasons[i];
-                    if (dest.weather[s]) {
-                        var rawTemp = dest.weather[s];
-                        var bracketIdx = rawTemp.indexOf('(');
-                        if (bracketIdx !== -1) {
-                            dest.quickInfo.temp[s] = rawTemp.substring(0, bracketIdx).replace(/^\s+|\s+$/g, '');
-                        } else {
-                            dest.quickInfo.temp[s] = rawTemp;
-                        }
-                    }
-                }
-            }
-
-            // 4. Normalize details (spots, food, hotel, courses, weatherDesc)
+            // 3. Normalize details (spots, food, hotel, courses, weatherDesc, shopping, temperatures)
             if (!dest.details) {
                 dest.details = {};
                 
@@ -286,15 +268,146 @@ function normalizeDestinations() {
                     });
                 }
             } else {
-                if (dest.details.spots && typeof dest.details.spots === 'object' && dest.details.spots.join) {
-                    dest.details.spots = dest.details.spots.join(', ');
+                // If dest.details already exists but has the older layout (like data_intl.js i1-i20)
+                var isOldLayout = dest.details.temperatures || dest.details.hotels || (dest.details.spots && dest.details.spots[0] && typeof dest.details.spots[0] === 'object');
+                
+                if (isOldLayout) {
+                    // Map spots (array of objects)
+                    if (dest.details.spots) {
+                        if (dest.details.spots[0] && typeof dest.details.spots[0] === 'object') {
+                            dest.details.spots = dest.details.spots.map(function(s) { return s.name; }).join(', ');
+                        } else if (typeof dest.details.spots === 'object' && dest.details.spots.join) {
+                            dest.details.spots = dest.details.spots.join(', ');
+                        }
+                    } else {
+                        dest.details.spots = '';
+                    }
+
+                    // Map food (array of objects)
+                    if (dest.details.food) {
+                        if (dest.details.food[0] && typeof dest.details.food[0] === 'object') {
+                            dest.details.food = dest.details.food.map(function(f) { return f.name; }).join(', ');
+                        } else if (typeof dest.details.food === 'object' && dest.details.food.join) {
+                            dest.details.food = dest.details.food.join(', ');
+                        }
+                    } else {
+                        dest.details.food = '';
+                    }
+
+                    // Map hotels to hotel
+                    if (dest.details.hotels) {
+                        dest.details.hotel = dest.details.hotels.map(function(h) { return h.name; }).join(', ');
+                    } else if (dest.details.hotel && typeof dest.details.hotel === 'object' && dest.details.hotel.join) {
+                        dest.details.hotel = dest.details.hotel.join(', ');
+                    } else if (!dest.details.hotel) {
+                        dest.details.hotel = '주변 주요 호텔';
+                    }
+
+                    // Map weatherDesc from details.temperatures
+                    dest.details.weatherDesc = {};
+                    if (dest.details.temperatures) {
+                        var seasons = ['spring', 'summer', 'autumn', 'winter'];
+                        for (var i = 0; i < seasons.length; i++) {
+                            var s = seasons[i];
+                            if (dest.details.temperatures[s]) {
+                                var rawTemp = dest.details.temperatures[s];
+                                var start = rawTemp.indexOf('(');
+                                var end = rawTemp.lastIndexOf(')');
+                                if (start !== -1 && end !== -1) {
+                                    dest.details.weatherDesc[s] = rawTemp.substring(start + 1, end);
+                                } else {
+                                    dest.details.weatherDesc[s] = rawTemp;
+                                }
+                            }
+                        }
+                    }
+
+                    // Map temp from details.temperatures
+                    if (!dest.quickInfo.temp && dest.details.temperatures) {
+                        dest.quickInfo.temp = {};
+                        var seasons = ['spring', 'summer', 'autumn', 'winter'];
+                        for (var i = 0; i < seasons.length; i++) {
+                            var s = seasons[i];
+                            if (dest.details.temperatures[s]) {
+                                var rawTemp = dest.details.temperatures[s];
+                                var bracketIdx = rawTemp.indexOf('(');
+                                if (bracketIdx !== -1) {
+                                    dest.quickInfo.temp[s] = rawTemp.substring(0, bracketIdx).replace(/^\s+|\s+$/g, '');
+                                } else {
+                                    dest.quickInfo.temp[s] = rawTemp;
+                                }
+                            }
+                        }
+                    }
+
+                    // Map shopping
+                    if (dest.details.shopping) {
+                        if (dest.details.shopping[0] && typeof dest.details.shopping[0] === 'object') {
+                            dest.details.shopping = dest.details.shopping.map(function(sh) { 
+                                return sh.category + ': ' + sh.items.join(', '); 
+                            }).join(' | ');
+                        } else if (typeof dest.details.shopping === 'object' && dest.details.shopping.join) {
+                            dest.details.shopping = dest.details.shopping.join(', ');
+                        }
+                    }
+
+                    // Map courses (array of objects)
+                    if (dest.details.courses && typeof dest.details.courses.join === 'undefined') {
+                        var newCourses = {};
+                        dest.details.courses.forEach(function(c) {
+                            var t = c.title.toLowerCase();
+                            var schedStr = c.schedule.join(' | ');
+                            if (t.indexOf('당일') !== -1 || t.indexOf('하루') !== -1) {
+                                newCourses['day'] = schedStr;
+                            } else if (t.indexOf('2박') !== -1 || t.indexOf('2~3') !== -1 || t.indexOf('3일') !== -1) {
+                                newCourses['2-3'] = schedStr;
+                            } else if (t.indexOf('4~5') !== -1 || t.indexOf('4박') !== -1 || t.indexOf('5일') !== -1) {
+                                newCourses['4-5'] = schedStr;
+                            } else if (t.indexOf('4~6') !== -1 || t.indexOf('6일') !== -1) {
+                                newCourses['4-6'] = schedStr;
+                            } else if (t.indexOf('7~14') !== -1 || t.indexOf('1주') !== -1 || t.indexOf('2주') !== -1 || t.indexOf('이상') !== -1) {
+                                newCourses['7-14'] = schedStr;
+                            } else {
+                                if (!newCourses['2-3']) newCourses['2-3'] = schedStr;
+                            }
+                        });
+                        
+                        var possibleKeys = ['2-3', '4-6', '7-14'];
+                        possibleKeys.forEach(function(k) {
+                            if (!newCourses[k]) {
+                                for (var firstKey in newCourses) {
+                                    newCourses[k] = newCourses[firstKey];
+                                    break;
+                                }
+                            }
+                        });
+                        dest.details.courses = newCourses;
+                    }
+                } else {
+                    // New flat structure but ensure spots, food, hotel are string-formatted nicely if they are arrays
+                    if (dest.details.spots && typeof dest.details.spots === 'object' && dest.details.spots.join) {
+                        dest.details.spots = dest.details.spots.join(', ');
+                    }
+                    if (dest.details.food && typeof dest.details.food === 'object' && dest.details.food.join) {
+                        dest.details.food = dest.details.food.join(', ');
+                    }
+                    if (dest.details.hotel && typeof dest.details.hotel === 'object' && dest.details.hotel.join) {
+                        dest.details.hotel = dest.details.hotel.join(', ');
+                    }
                 }
-                if (dest.details.food && typeof dest.details.food === 'object' && dest.details.food.join) {
-                    dest.details.food = dest.details.food.join(', ');
-                }
-                if (dest.details.hotel && typeof dest.details.hotel === 'object' && dest.details.hotel.join) {
-                    dest.details.hotel = dest.details.hotel.join(', ');
-                }
+            }
+
+            // 4. Ultimate safety fallback for weatherDesc to prevent TypeError
+            if (dest.details && !dest.details.weatherDesc) {
+                dest.details.weatherDesc = { spring: '여행하기 좋은 선선한 날씨입니다.', summer: '야외 활동에 어울리는 여름 기후입니다.', autumn: '맑고 선선하여 걷기 좋은 날씨입니다.', winter: '따뜻한 외투가 필요한 계절입니다.' };
+            }
+            if (dest.details && dest.details.weatherDesc) {
+                var seasons = ['spring', 'summer', 'autumn', 'winter'];
+                seasons.forEach(function(s) {
+                    if (!dest.details.weatherDesc[s]) {
+                        dest.details.weatherDesc[s] = '여행하기 좋은 날씨입니다.';
+                    }
+                });
             }
         });
     }
@@ -523,77 +636,109 @@ function renderRecommendations(recs) {
     const displayMonth = userAnswers.month ? `${userAnswers.month}월` : '선택한 달';
 
     const html = recs.map((dest, index) => {
-        const tempStr = getSeasonTempStr(dest.quickInfo.temp, userSeason);
-        
-        let detailsHtml = '';
-        if (dest.details) {
-            const userDuration = userAnswers.duration || '2-3';
+        try {
+            var tempStr = getSeasonTempStr(dest.quickInfo ? dest.quickInfo.temp : null, userSeason);
             
-            const weatherDesc = dest.details.weatherDesc[userSeason] || dest.details.weatherDesc['spring'];
-            const courseDesc = dest.details.courses[userDuration] || Object.values(dest.details.courses)[0];
-            
-            const durationQuestion = activeQuestions.find(q => q.id === 'duration');
-            const durationLabel = durationQuestion ? (durationQuestion.options.find(o => o.value === userDuration)?.label || userDuration) : userDuration;
-
-            detailsHtml = `
-                <div class="domestic-details" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed rgba(0,0,0,0.1);">
-                    <h4 style="margin-bottom: 0.8rem; color: var(--primary);">✨ 여행 상세 정보</h4>
-                    <div style="display: grid; gap: 0.8rem; font-size: 0.95rem;">
-                        <p><strong>📸 인기 관광지:</strong> ${dest.details.spots}</p>
-                        <p><strong>🍜 추천 맛집:</strong> ${dest.details.food}</p>
-                        <p><strong>🏨 추천 숙소:</strong> ${dest.details.hotel}</p>
-                        <p><strong>🌤️ ${displayMonth} 날씨:</strong> ${weatherDesc}</p>
-                        ${dest.location === 'international' && dest.details.shopping ? `<p><strong>🎁 추천 쇼핑/선물:</strong> ${dest.details.shopping}</p>` : ''}
-                        <p><strong>🗺️ 추천 코스 (${durationLabel}):</strong> ${courseDesc}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        return `
-        <div class="destination-card animate-fade-in" style="animation-delay: ${index * 0.1}s">
-            <img src="${dest.image}" alt="${dest.name}" class="card-img">
-            <div class="card-content">
-                <h3 class="card-title">${dest.name}</h3>
-                <p class="card-desc">${dest.description}</p>
+            var detailsHtml = '';
+            if (dest.details) {
+                var userDuration = userAnswers.duration || '2-3';
                 
-                <div class="info-badges">
-                    <div class="badge">
-                        <div class="badge-title">📅 추천월</div>
-                        <div class="badge-value">${dest.quickInfo.months}</div>
-                    </div>
-                    <div class="badge">
-                        <div class="badge-title">${dest.location === 'domestic' ? '🚗 추천 교통' : '✈️ 항공'}</div>
-                        <div class="badge-value">${dest.quickInfo.flight}</div>
-                    </div>
-                    ${dest.location === 'international' ? `
-                    <div class="badge">
-                        <div class="badge-title">🛂 비자</div>
-                        <div class="badge-value">${dest.quickInfo.visa}</div>
-                    </div>
-                    ` : ''}
-                    <div class="badge">
-                        <div class="badge-title">🌡️ 평균온도</div>
-                        <div class="badge-value">${tempStr}</div>
-                    </div>
-                    ${dest.location === 'international' ? `
-                    <div class="badge">
-                        <div class="badge-title">🔌 전압</div>
-                        <div class="badge-value">${dest.quickInfo.voltage}</div>
-                    </div>
-                    ` : ''}
-                </div>
-
-                <div class="card-tags">
-                    ${dest.style.map(s => `<span class="tag">#${styleTranslations[s] || s}</span>`).join('')}
-                </div>
+                var weatherDesc = '여행하기 좋은 날씨입니다.';
+                if (dest.details.weatherDesc) {
+                    weatherDesc = dest.details.weatherDesc[userSeason] || dest.details.weatherDesc['spring'] || '여행하기 좋은 날씨입니다.';
+                }
                 
-                ${detailsHtml}
+                var courseDesc = '추천 일정이 곧 추가될 예정입니다.';
+                if (dest.details.courses) {
+                    courseDesc = dest.details.courses[userDuration] || Object.values(dest.details.courses)[0] || '추천 일정이 곧 추가될 예정입니다.';
+                }
+                
+                var durationLabel = userDuration;
+                if (typeof activeQuestions !== 'undefined' && activeQuestions.find) {
+                    var durationQuestion = activeQuestions.find(function(q) { return q.id === 'duration'; });
+                    if (durationQuestion && durationQuestion.options && durationQuestion.options.find) {
+                        var matchedOpt = durationQuestion.options.find(function(o) { return o.value === userDuration; });
+                        if (matchedOpt && matchedOpt.label) {
+                            durationLabel = matchedOpt.label;
+                        }
+                    }
+                }
+
+                detailsHtml = `
+                    <div class="domestic-details" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed rgba(0,0,0,0.1);">
+                        <h4 style="margin-bottom: 0.8rem; color: var(--primary);">✨ 여행 상세 정보</h4>
+                        <div style="display: grid; gap: 0.8rem; font-size: 0.95rem;">
+                            <p><strong>📸 인기 관광지:</strong> ${dest.details.spots || '-'}</p>
+                            <p><strong>🍜 추천 맛집:</strong> ${dest.details.food || '-'}</p>
+                            <p><strong>🏨 추천 숙소:</strong> ${dest.details.hotel || '-'}</p>
+                            <p><strong>🌤️ ${displayMonth} 날씨:</strong> ${weatherDesc}</p>
+                            ${dest.location === 'international' && dest.details.shopping ? `<p><strong>🎁 추천 쇼핑/선물:</strong> ${dest.details.shopping}</p>` : ''}
+                            <p><strong>🗺️ 추천 코스 (${durationLabel}):</strong> ${courseDesc}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            var imageSrc = dest.image || 'https://loremflickr.com/800/600/travel';
+            var destName = dest.name || '알 수 없는 목적지';
+            var destDesc = dest.description || '목적지 설명이 아직 작성되지 않았습니다.';
+            var destMonths = (dest.quickInfo && dest.quickInfo.months) ? dest.quickInfo.months : '연중무휴';
+            var destFlight = (dest.quickInfo && dest.quickInfo.flight) ? dest.quickInfo.flight : '자가용/대중교통';
+            var destVisa = (dest.quickInfo && dest.quickInfo.visa) ? dest.quickInfo.visa : '해당없음';
+            var destVoltage = (dest.quickInfo && dest.quickInfo.voltage) ? dest.quickInfo.voltage : '220V';
+            var destStyle = dest.style || [];
+
+            return `
+            <div class="destination-card animate-fade-in" style="animation-delay: ${index * 0.1}s">
+                <img src="${imageSrc}" alt="${destName}" class="card-img">
+                <div class="card-content">
+                    <h3 class="card-title">${destName}</h3>
+                    <p class="card-desc">${destDesc}</p>
+                    
+                    <div class="info-badges">
+                        <div class="badge">
+                            <div class="badge-title">📅 추천월</div>
+                            <div class="badge-value">${destMonths}</div>
+                        </div>
+                        <div class="badge">
+                            <div class="badge-title">${dest.location === 'domestic' ? '🚗 추천 교통' : '✈️ 항공'}</div>
+                            <div class="badge-value">${destFlight}</div>
+                        </div>
+                        ${dest.location === 'international' ? `
+                        <div class="badge">
+                            <div class="badge-title">🛂 비자</div>
+                            <div class="badge-value">${destVisa}</div>
+                        </div>
+                        ` : ''}
+                        <div class="badge">
+                            <div class="badge-title">🌡️ 평균온도</div>
+                            <div class="badge-value">${tempStr}</div>
+                        </div>
+                        ${dest.location === 'international' ? `
+                        <div class="badge">
+                            <div class="badge-title">🔌 전압</div>
+                            <div class="badge-value">${destVoltage}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="card-tags">
+                        ${destStyle.map(function(s) { return `<span class="tag">#` + (styleTranslations[s] || s) + `</span>`; }).join('')}
+                    </div>
+                    
+                    ${detailsHtml}
+                </div>
             </div>
-        </div>
-    `}).join('');
+            `;
+        } catch (e) {
+            if (typeof console !== 'undefined' && console.error) {
+                console.error("Error rendering destination: " + dest.id, e);
+            }
+            return '';
+        }
+    }).join('');
 
-    DOM.resultsGrid.innerHTML = html;
+    DOM.resultsGrid.innerHTML = html || '<p>조건에 맞는 여행지를 찾지 못했습니다.</p>';
 }
 
 // Start
