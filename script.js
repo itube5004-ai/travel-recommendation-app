@@ -682,47 +682,68 @@ var TRAVEL_IMAGES = {
     'd6':  'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&auto=format&fit=crop&q=80', // 광주 문화예술
     'd7':  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 울산 대왕암공원 바다
     'd8':  'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 세종 호수공원
-    'd9':  'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80', // 제주 성산일출봉
-    'd10': 'https://images.unsplash.com/photo-1608976451631-b76922d56a2f?w=800&auto=format&fit=crop&q=80', // 수원 화성
-    'd11': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 춘천 남이섬
-    'd12': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 강릉 안목해변
-    'd13': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80', // 속초 설악산
+    'd9':  'https://images.unsplash.com/photo-1534008897415-188ae1c4c09c?w=800&auto=format&fit=crop&q=80', // 제주 성산일출봉/우도 돌하르방 (시드니 중복 해결!)
+    'd10': 'https://images.unsplash.com/photo-1608976451631-b76922d56a2f?w=800&auto=format&fit=crop&q=80', // 수원 화성 성곽
+    'd11': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 춘천 남이섬 메타세쿼이아
+    'd12': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 강릉 안목해변 바다
+    'd13': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80', // 속초 설악산 흔들바위
     'd14': 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80', // 평창 양떼목장
     'd15': 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&auto=format&fit=crop&q=80', // 양양 서피비치
-    'd16': 'https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=800&auto=format&fit=crop&q=80', // 경주 첨성대/안압지
-    'd17': 'https://images.unsplash.com/photo-1516690561799-46d8f74f9abf?w=800&auto=format&fit=crop&q=80', // 여수 밤바다
-    'd18': 'https://images.unsplash.com/photo-1624831618683-bc2754668b55?w=800&auto=format&fit=crop&q=80', // 전주 한옥마을
-    'd19': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80', // 목포 유달산
-    'd20': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 순천만 습지
-    'd21': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 담양 죽녹원
-    'd22': 'https://images.unsplash.com/photo-1513553404607-988bf2703777?w=800&auto=format&fit=crop&q=80', // 통영 한려수도
-    'd23': 'https://images.unsplash.com/photo-1601999109332-542b18dbec57?w=800&auto=format&fit=crop&q=80', // 안동 하회마을
-    'd24': 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&auto=format&fit=crop&q=80', // 포항 호미곶
-    'd25': 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=800&auto=format&fit=crop&q=80', // 창원 진해벚꽃
-    'd26': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 천안 독립기념관
-    'd27': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&auto=format&fit=crop&q=80', // 청주 상당산성
-    'd28': 'https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?w=800&auto=format&fit=crop&q=80', // 공주 무령왕릉
-    'd29': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80', // 단양 도담삼봉
-    'd30': 'https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?w=800&auto=format&fit=crop&q=80', // 군산 철길마을
-    'd31': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80', // 문경 새재
-    'd32': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=80', // 남해 독일마을
-    'd33': 'https://images.unsplash.com/photo-1473116763269-b552f5872225?w=800&auto=format&fit=crop&q=80', // 거제도 바람의언덕
-    'd34': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=80', // 보성 녹차밭
-    'd35': 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80', // 가평 자라섬
-    'd36': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 제천 청풍호
-    'd37': 'https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?w=800&auto=format&fit=crop&q=80', // 진주 촉석루
-    'd38': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80', // 구례 지리산
-    'd39': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80', // 완도 청산도
-    'd40': 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&auto=format&fit=crop&q=80', // 해남 땅끝마을
-    'd41': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 부여 백제유적
-    'd42': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 태안 만리포
-    'd43': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 울진 망양정 바다
-    'd44': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 삼척 장호항
-    'd45': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 영덕 해맞이공원
-    'd46': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=80', // 하동 차밭
-    'd47': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 창녕 우포늪
-    'd48': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 고성 봉포해변
-    'd49': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 양평 두물머리
+    'd16': 'https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=800&auto=format&fit=crop&q=80', // 경주 동궁과월지 야경
+    'd17': 'https://images.unsplash.com/photo-1516690561799-46d8f74f9abf?w=800&auto=format&fit=crop&q=80', // 여수 밤바다 조명
+    'd18': 'https://images.unsplash.com/photo-1624831618683-bc2754668b55?w=800&auto=format&fit=crop&q=80', // 전주 한옥마을 기와전경
+    'd19': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80', // 목포 해상케이블카 유달산
+    'd20': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 순천만 황금빛 갈대밭
+    'd21': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 담양 죽녹원 대나무숲
+    'd22': 'https://images.unsplash.com/photo-1513553404607-988bf2703777?w=800&auto=format&fit=crop&q=80', // 통영 한려수도 케이블카
+    'd23': 'https://images.unsplash.com/photo-1601999109332-542b18dbec57?w=800&auto=format&fit=crop&q=80', // 안동 하회마을 전통한옥
+    'd24': 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&auto=format&fit=crop&q=80', // 포항 호미곶 상생의손
+    'd25': 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=800&auto=format&fit=crop&q=80', // 창원 진해벚꽃 경화역
+    'd26': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 천안 독립기념관 겨레의집
+    'd27': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&auto=format&fit=crop&q=80', // 청주 상당산성 성벽
+    'd28': 'https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?w=800&auto=format&fit=crop&q=80', // 공주 공산성 금강교 야경
+    'd29': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80', // 단양 도담삼봉 삼각 바위섬
+    'd30': 'https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?w=800&auto=format&fit=crop&q=80', // 군산 경암동 철길마을 레트로
+    'd31': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80', // 문경새재 전통 성문
+    'd32': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=80', // 남해 독일마을 주황색 지붕
+    'd33': 'https://images.unsplash.com/photo-1473116763269-b552f5872225?w=800&auto=format&fit=crop&q=80', // 거제도 바람의언덕 빨간풍차
+    'd34': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=80', // 보성 녹차밭 계단식 밭
+    'd35': 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80', // 가평 수목원 정원
+    'd36': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 제천 의림지 호수 정자
+    'd37': 'https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?w=800&auto=format&fit=crop&q=80', // 진주 촉석루 의암바위 남강
+    'd38': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80', // 구례 화엄사 웅장한 목조 대웅전
+    'd39': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80', // 완도 청산도 노란 유채꽃과 돌담
+    'd40': 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&auto=format&fit=crop&q=80', // 해남 대흥사 두륜산 기암 절경
+    'd41': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 부여 궁남지 백제 연못 정자
+    'd42': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 태안 안면도 꽃지해수욕장 할미할아비바위 낙조
+    'd43': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 울진 불영계곡 깊은 기암 계곡
+    'd44': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 삼척 대금굴 동굴 종유석
+    'd45': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 영덕 강구항 대게 동상 바다
+    'd46': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=80', // 하동 화개장터 전통 장터 기와집
+    'd47': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 창녕 우포늪 수풀 안개와 쪽배
+    'd48': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 고성 통일전망대 북한 금강산 바다 절경
+    'd49': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 양평 두물머리 돛단배와 느티나무 강가
+    'd50': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80', // 영월 선암마을 한반도지형을 굽이치는 강
+    'd51': 'https://images.unsplash.com/photo-1513553404607-988bf2703777?w=800&auto=format&fit=crop&q=80', // 사천 초양도 바다 케이블카 다리 섬
+    'd52': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 남양주 다산생태공원 연꽃 강가 산책로
+    'd53': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 포천 산정호수 맑은 물과 명성산
+    'd54': 'https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?w=800&auto=format&fit=crop&q=80', // 파주 프로방스마을 알록달록한 동화 마을
+    'd55': 'https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?w=800&auto=format&fit=crop&q=80', // 광주 남한산성 성벽 야경 전경
+    'd56': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 양주 장흥조각공원 푸른 숲 잔디 광장
+    'd57': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80', // 동두천 소요산 자재암 폭포와 가을 단풍
+    'd58': 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80', // 이천 예스파크 전통 도자기 굽는 가마
+    'd59': 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80', // 안성 안성맞춤랜드 호수 분수와 공원
+    'd60': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 여주 신륵사 다층석탑과 강변 바위 절벽
+    'd61': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 평택 진위천 시민유원지 호수 꽃밭
+    'd62': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 오산 독산성 세마대 역사 장대 성곽
+    'd63': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 의왕 왕송호수 레일바이크와 연꽃
+    'd64': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 군포 철쭉동산 분홍빛 철쭉 꽃밭
+    'd65': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 시흥 오이도 빨간등대 선착장 서해 바다
+    'd66': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 김포 한강중앙공원 음악분수 금빛수로
+    'd67': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 고양 일산 호수공원 장미원 꽃밭 호수
+    'd68': 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80', // 성남 탄천 징검다리와 가을 갈대길
+    'd69': 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&auto=format&fit=crop&q=80', // 과천 국립현대미술관 나선형 내부 램프
+    'd70': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80'  // 구리 아차산 보루 한강 조망 바위 전경hoto-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 양평 두물머리
     'd50': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80', // 영월 선암마을
     'd51': 'https://images.unsplash.com/photo-1513553404607-988bf2703777?w=800&auto=format&fit=crop&q=80', // 사천 바다케이블카
     'd52': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 남양주 수목원
@@ -901,15 +922,14 @@ function renderRecommendations(recs) {
                     days = days.slice(0, targetDays);
                 }
                 
-                // Clean up departure text in non-final days
+                // Clean up departure text, airports, and raw day indicators in non-final days
                 for (var i = 0; i < days.length - 1; i++) {
                     days[i] = days[i]
-                        .replace(/->\s*.*귀국[^,]*/g, '')
-                        .replace(/->\s*.*귀가[^,]*/g, '')
-                        .replace(/->\s*.*공항\s*이동[^,]*/g, '')
+                        .replace(/->\s*[^->]*(공항|귀국|귀가|일차|Day)[^,->]*/gi, '') // 비말기 일정에 묻은 공항/귀국/다음일차 지시어 일체 청소
                         .replace(/및\s*한국\s*귀국/g, '')
                         .replace(/및\s*귀국/g, '')
-                        .replace(/및\s*귀가/g, '');
+                        .replace(/및\s*귀가/g, '')
+                        .replace(/\s*->\s*$/g, ''); // 뒤에 남은 잔여 화살표 제거
                 }
                 
                 // Extract spots and foods for dynamic generation if day count is short
@@ -975,7 +995,8 @@ function renderRecommendations(recs) {
                 // Format the itinerary beautifully in vertical HTML
                 var courseDesc = '<div class="course-list" style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; padding-left: 0.8rem; border-left: 2px solid var(--primary);">';
                 days.forEach(function(dayText) {
-                    var formattedDay = dayText.replace(/(\d+)일차:?/g, '<strong style="color: var(--primary);">$1Day:</strong>');
+                    // 오직 문장 맨 앞에 오는 일차(예: 1일차:, 2일차:) 지시어만 1Day:, 2Day: 로 치환하도록 ^ 앵커 적용
+                    var formattedDay = dayText.replace(/^(\d+)일차:?/g, '<strong style="color: var(--primary);">$1Day:</strong>');
                     courseDesc += '<div class="course-day" style="line-height: 1.4;">' + formattedDay + '</div>';
                 });
                 courseDesc += '</div>';
