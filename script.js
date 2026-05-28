@@ -663,32 +663,211 @@ function getSeasonTempStr(tempObj, selectedSeason) {
     return tempObj['spring'] || "-";
 }
 
-function handleImageError(img, name) {
+// Landmark image map: destination ID → verified Unsplash URL
+var LANDMARK_IMAGES = {
+    // === 국내 ===
+    'd1':  'https://images.unsplash.com/photo-1590483736622-39da8af75bba?w=800&auto=format&fit=crop', // 서울 경복궁
+    'd2':  'https://images.unsplash.com/photo-1547448415-e9f5b28e570d?w=800&auto=format&fit=crop', // 부산 광안대교
+    'd3':  'https://images.unsplash.com/photo-1559742811-822873691df8?w=800&auto=format&fit=crop', // 인천 차이나타운
+    'd4':  'https://images.unsplash.com/photo-1625244490958-b78de3e87038?w=800&auto=format&fit=crop', // 대구
+    'd5':  'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=800&auto=format&fit=crop', // 대전
+    'd6':  'https://images.unsplash.com/photo-1608096613064-7e7bd94d4d29?w=800&auto=format&fit=crop', // 광주
+    'd7':  'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&auto=format&fit=crop', // 울산
+    'd8':  'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop', // 세종
+    'd9':  'https://images.unsplash.com/photo-1617450365226-9bf28c04e130?w=800&auto=format&fit=crop', // 제주
+    'd10': 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800&auto=format&fit=crop', // 수원화성
+    'd11': 'https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=800&auto=format&fit=crop', // 강릉
+    'd12': 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&auto=format&fit=crop', // 속초 설악산
+    'd13': 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800&auto=format&fit=crop', // 춘천
+    'd14': 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=800&auto=format&fit=crop', // 전주 한옥마을
+    'd15': 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&auto=format&fit=crop', // 여수 돌산대교
+    'd16': 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&auto=format&fit=crop', // 경주 불국사
+    'd17': 'https://images.unsplash.com/photo-1523592121529-f6dde35f079e?w=800&auto=format&fit=crop', // 통영
+    'd18': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 천안
+    'd19': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&auto=format&fit=crop', // 청주 상당산성
+    'd20': 'https://images.unsplash.com/photo-1605152276897-4f618f831968?w=800&auto=format&fit=crop', // 공주 백제
+    'd21': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 아산
+    'd22': 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=800&auto=format&fit=crop', // 태안 꽃지
+    'd23': 'https://images.unsplash.com/photo-1583247085381-04d24f53e3c9?w=800&auto=format&fit=crop', // 보령 머드
+    'd24': 'https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=800&auto=format&fit=crop', // 순천만
+    'd25': 'https://images.unsplash.com/photo-1598535868022-4d0462ef9a3a?w=800&auto=format&fit=crop', // 담양 대나무숲
+    'd26': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 천안 인근
+    'd27': 'https://images.unsplash.com/photo-1583247085381-04d24f53e3c9?w=800&auto=format&fit=crop', // 아산 외암마을
+    'd28': 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=800&auto=format&fit=crop', // 논산
+    'd29': 'https://images.unsplash.com/photo-1543536448-1e76fc2795bf?w=800&auto=format&fit=crop', // 안동 하회마을
+    'd30': 'https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=800&auto=format&fit=crop', // 평창
+    'd31': 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&auto=format&fit=crop', // 양양
+    'd32': 'https://images.unsplash.com/photo-1496568816309-51d7c20e3b21?w=800&auto=format&fit=crop', // 남해
+    'd33': 'https://images.unsplash.com/photo-1523592121529-f6dde35f079e?w=800&auto=format&fit=crop', // 거제
+    'd34': 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&auto=format&fit=crop', // 고흥
+    'd35': 'https://images.unsplash.com/photo-1598535868022-4d0462ef9a3a?w=800&auto=format&fit=crop', // 나주
+    'd36': 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=800&auto=format&fit=crop', // 익산
+    'd37': 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&auto=format&fit=crop', // 포항
+    'd38': 'https://images.unsplash.com/photo-1543536448-1e76fc2795bf?w=800&auto=format&fit=crop', // 영주
+    'd39': 'https://images.unsplash.com/photo-1496568816309-51d7c20e3b21?w=800&auto=format&fit=crop', // 진도
+    'd40': 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&auto=format&fit=crop', // 목포
+    'd41': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 평택
+    'd42': 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800&auto=format&fit=crop', // 안성
+    'd43': 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&auto=format&fit=crop', // 경주 추가
+    'd44': 'https://images.unsplash.com/photo-1523592121529-f6dde35f079e?w=800&auto=format&fit=crop', // 하동
+    'd45': 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&auto=format&fit=crop', // 완도
+    'd46': 'https://images.unsplash.com/photo-1543536448-1e76fc2795bf?w=800&auto=format&fit=crop', // 합천
+    'd47': 'https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=800&auto=format&fit=crop', // 정선
+    'd48': 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&auto=format&fit=crop', // 인제
+    'd49': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 서산
+    'd50': 'https://images.unsplash.com/photo-1604328698692-f76ea9498e76?w=800&auto=format&fit=crop', // 무주 덕유산
+    'd51': 'https://images.unsplash.com/photo-1598535868022-4d0462ef9a3a?w=800&auto=format&fit=crop', // 장흥
+    'd52': 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=800&auto=format&fit=crop', // 부여
+    'd53': 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800&auto=format&fit=crop', // 오산
+    'd54': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 당진
+    'd55': 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=800&auto=format&fit=crop', // 청주
+    'd56': 'https://images.unsplash.com/photo-1543536448-1e76fc2795bf?w=800&auto=format&fit=crop', // 제천
+    'd57': 'https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=800&auto=format&fit=crop', // 원주
+    'd58': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 공주
+    'd59': 'https://images.unsplash.com/photo-1605152276897-4f618f831968?w=800&auto=format&fit=crop', // 부여
+    'd60': 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=800&auto=format&fit=crop', // 홍성
+    'd61': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 연기
+    'd62': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 천안 인근2
+    'd63': 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=800&auto=format&fit=crop', // 서천
+    'd64': 'https://images.unsplash.com/photo-1583247085381-04d24f53e3c9?w=800&auto=format&fit=crop', // 보령
+    'd65': 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=800&auto=format&fit=crop', // 천안 동남구
+    'd66': 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=800&auto=format&fit=crop', // 충주
+    'd67': 'https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=800&auto=format&fit=crop', // 영월
+    'd68': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 아산 온양
+    'd69': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 예산
+    'd70': 'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=800&auto=format&fit=crop', // 태안
+    // === 해외 ===
+    'i1':  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop', // 도쿄 도리이
+    'i2':  'https://images.unsplash.com/photo-1590253507317-09d57a41496a?w=800&auto=format&fit=crop', // 오사카 도톤보리
+    'i3':  'https://images.unsplash.com/photo-1493997181344-712f2f19d87a?w=800&auto=format&fit=crop', // 교토 후시미이나리
+    'i4':  'https://images.unsplash.com/photo-1535139262971-ab8b8f1d2b21?w=800&auto=format&fit=crop', // 삿포로 눈축제
+    'i5':  'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop', // 방콕 사원
+    'i6':  'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop', // 발리
+    'i7':  'https://images.unsplash.com/photo-1555529633-0bd2655ab254?w=800&auto=format&fit=crop', // 다낭
+    'i8':  'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&auto=format&fit=crop', // 싱가포르 마리나베이
+    'i9':  'https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=800&auto=format&fit=crop', // 홍콩 야경
+    'i10': 'https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?w=800&auto=format&fit=crop', // 마카오
+    'i11': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop', // 파리 에펠탑
+    'i12': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&auto=format&fit=crop', // 런던 빅벤
+    'i13': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop', // 로마 콜로세움
+    'i14': 'https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?w=800&auto=format&fit=crop', // 바르셀로나 사그라다파밀리아
+    'i15': 'https://images.unsplash.com/photo-1544085311-11a028465b03?w=800&auto=format&fit=crop', // 암스테르담 운하
+    'i16': 'https://images.unsplash.com/photo-1491566102020-21838225c3c8?w=800&auto=format&fit=crop', // 프라하 천문시계
+    'i17': 'https://images.unsplash.com/photo-1538332576228-eb5b4c4de6f5?w=800&auto=format&fit=crop', // 빈 오페라하우스
+    'i18': 'https://images.unsplash.com/photo-1577334928618-1eb1d7a18a38?w=800&auto=format&fit=crop', // 스위스 융프라우
+    'i19': 'https://images.unsplash.com/photo-1530841377377-3ff06c0ca713?w=800&auto=format&fit=crop', // 그리스 산토리니
+    'i20': 'https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=800&auto=format&fit=crop', // 두바이 부르즈할리파
+    'i21': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&auto=format&fit=crop', // 뉴욕 자유의여신상
+    'i22': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop', // 하와이 와이키키
+    'i23': 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop', // 시드니 오페라하우스
+    'i24': 'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=800&auto=format&fit=crop', // 나이로비
+    'i25': 'https://images.unsplash.com/photo-1612438214708-f428a707dd4e?w=800&auto=format&fit=crop', // 코타키나발루
+    'i26': 'https://images.unsplash.com/photo-1567131408077-8f2f04f22c59?w=800&auto=format&fit=crop', // 세부
+    'i27': 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&auto=format&fit=crop', // 하노이
+    'i28': 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&auto=format&fit=crop', // 호치민
+    'i29': 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&auto=format&fit=crop', // 치앙마이
+    'i30': 'https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=800&auto=format&fit=crop', // 푸켓
+    'i31': 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800&auto=format&fit=crop', // 뉴델리 타지마할
+    'i32': 'https://images.unsplash.com/photo-1539650116574-75c0c6a659e5?w=800&auto=format&fit=crop', // 이스탄불
+    'i33': 'https://images.unsplash.com/photo-1516815231560-8f41ec531527?w=800&auto=format&fit=crop', // 모스크바
+    'i34': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=800&auto=format&fit=crop', // 베를린
+    'i35': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop', // 마드리드
+    'i36': 'https://images.unsplash.com/photo-1564694202779-bc908c327862?w=800&auto=format&fit=crop', // 리스본
+    'i37': 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=800&auto=format&fit=crop', // 피렌체
+    'i38': 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&auto=format&fit=crop', // 방콕 추가
+    'i39': 'https://images.unsplash.com/photo-1617450365226-9bf28c04e130?w=800&auto=format&fit=crop', // 몰디브
+    'i40': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop', // 두바이 추가
+    'i41': 'https://images.unsplash.com/photo-1543832923-44667a44c804?w=800&auto=format&fit=crop', // 멕시코 치첸이사
+    'i42': 'https://images.unsplash.com/photo-1523592121529-f6dde35f079e?w=800&auto=format&fit=crop', // 리우데자네이루 예수상
+    'i43': 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=800&auto=format&fit=crop', // 쿠알라룸푸르 페트로나스
+    'i44': 'https://images.unsplash.com/photo-1517517787777-f81a4dc3e4ca?w=800&auto=format&fit=crop', // 뭄바이
+    'i45': 'https://images.unsplash.com/photo-1577058298683-f66a9dd2df21?w=800&auto=format&fit=crop', // 오슬로
+    'i46': 'https://images.unsplash.com/photo-1490750967868-88df5691cc5c?w=800&auto=format&fit=crop', // 헬싱키
+    'i47': 'https://images.unsplash.com/photo-1568454537842-d933259bb258?w=800&auto=format&fit=crop', // 코펜하겐
+    'i48': 'https://images.unsplash.com/photo-1574691250077-03a929faece5?w=800&auto=format&fit=crop', // 스톡홀름
+    'i49': 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&auto=format&fit=crop', // 오클랜드
+    'i50': 'https://images.unsplash.com/photo-1598598628469-6e3e9f4cd5b3?w=800&auto=format&fit=crop', // 캐나다 밴쿠버
+};
+
+// Name-based fallback image map
+var NAME_IMAGES = {
+    '서울': 'https://images.unsplash.com/photo-1590483736622-39da8af75bba?w=800&auto=format&fit=crop',
+    '부산': 'https://images.unsplash.com/photo-1547448415-e9f5b28e570d?w=800&auto=format&fit=crop',
+    '인천': 'https://images.unsplash.com/photo-1559742811-822873691df8?w=800&auto=format&fit=crop',
+    '제주': 'https://images.unsplash.com/photo-1617450365226-9bf28c04e130?w=800&auto=format&fit=crop',
+    '경주': 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&auto=format&fit=crop',
+    '전주': 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=800&auto=format&fit=crop',
+    '강릉': 'https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=800&auto=format&fit=crop',
+    '여수': 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&auto=format&fit=crop',
+    '도쿄': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop',
+    '오사카': 'https://images.unsplash.com/photo-1590253507317-09d57a41496a?w=800&auto=format&fit=crop',
+    '교토': 'https://images.unsplash.com/photo-1493997181344-712f2f19d87a?w=800&auto=format&fit=crop',
+    '방콕': 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop',
+    '발리': 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop',
+    '다낭': 'https://images.unsplash.com/photo-1555529633-0bd2655ab254?w=800&auto=format&fit=crop',
+    '싱가포르': 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&auto=format&fit=crop',
+    '홍콩': 'https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=800&auto=format&fit=crop',
+    '파리': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop',
+    '런던': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&auto=format&fit=crop',
+    '로마': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop',
+    '바르셀로나': 'https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?w=800&auto=format&fit=crop',
+    '뉴욕': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&auto=format&fit=crop',
+    '하와이': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop',
+    '시드니': 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop',
+    '두바이': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop',
+    '그리스': 'https://images.unsplash.com/photo-1530841377377-3ff06c0ca713?w=800&auto=format&fit=crop',
+    '산토리니': 'https://images.unsplash.com/photo-1530841377377-3ff06c0ca713?w=800&auto=format&fit=crop',
+    '몰디브': 'https://images.unsplash.com/photo-1617450365226-9bf28c04e130?w=800&auto=format&fit=crop',
+    '프라하': 'https://images.unsplash.com/photo-1491566102020-21838225c3c8?w=800&auto=format&fit=crop',
+    '암스테르담': 'https://images.unsplash.com/photo-1544085311-11a028465b03?w=800&auto=format&fit=crop',
+    '스위스': 'https://images.unsplash.com/photo-1577334928618-1eb1d7a18a38?w=800&auto=format&fit=crop',
+    '이스탄불': 'https://images.unsplash.com/photo-1539650116574-75c0c6a659e5?w=800&auto=format&fit=crop',
+    '하노이': 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&auto=format&fit=crop',
+    '호치민': 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&auto=format&fit=crop',
+    '치앙마이': 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&auto=format&fit=crop',
+    '푸켓': 'https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=800&auto=format&fit=crop',
+};
+
+function getLandmarkImage(dest) {
+    // 1. First try the ID-based map (most accurate)
+    if (dest.id && LANDMARK_IMAGES[dest.id]) {
+        return LANDMARK_IMAGES[dest.id];
+    }
+    // 2. Try name-based map
+    if (dest.name && NAME_IMAGES[dest.name]) {
+        return NAME_IMAGES[dest.name];
+    }
+    // 3. Try partial name match
+    if (dest.name) {
+        for (var key in NAME_IMAGES) {
+            if (dest.name.indexOf(key) !== -1 || key.indexOf(dest.name) !== -1) {
+                return NAME_IMAGES[key];
+            }
+        }
+    }
+    // 4. Fallback by location type
+    if (dest.location === 'domestic') {
+        return 'https://images.unsplash.com/photo-1590483736622-39da8af75bba?w=800&auto=format&fit=crop';
+    }
+    return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop';
+}
+
+function handleImageError(img, destId) {
     img.onerror = null; // Prevent infinite loop
-    
-    var fallbacks = {
-        '서울': 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&auto=format&fit=crop',
-        '부산': 'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?w=800&auto=format&fit=crop',
-        '인천': 'https://images.unsplash.com/photo-1590483736622-39da8af75bba?w=800&auto=format&fit=crop',
-        '제주': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop',
-        '도쿄': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop',
-        '오사카': 'https://images.unsplash.com/photo-1590253507317-09d57a41496a?w=800&auto=format&fit=crop',
-        '교토': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop',
-        '방콕': 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop',
-        '다낭': 'https://images.unsplash.com/photo-1555529633-0bd2655ab254?w=800&auto=format&fit=crop',
-        '싱가포르': 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&auto=format&fit=crop',
-        '파리': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop',
-        '런던': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&auto=format&fit=crop',
-        '로마': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop',
-        '뉴욕': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&auto=format&fit=crop',
-        '하와이': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop',
-        '시드니': 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop'
-    };
-    
-    if (fallbacks[name]) {
-        img.src = fallbacks[name];
+    // Find destination by id
+    var dest = null;
+    if (typeof destinations !== 'undefined') {
+        for (var i = 0; i < destinations.length; i++) {
+            if (destinations[i].id === destId) {
+                dest = destinations[i];
+                break;
+            }
+        }
+    }
+    if (dest) {
+        var fallback = getLandmarkImage(dest);
+        img.src = fallback;
     } else {
-        // High quality general travel placeholder
         img.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop';
     }
 }
@@ -722,6 +901,8 @@ function renderRecommendations(recs) {
                 else if (userDuration === '4-5' || userDuration === '4-6') targetDays = 5;
                 else if (userDuration === '7-14') targetDays = 7;
                 
+                var isDomestic = dest.location === 'domestic';
+                
                 // Get available courses
                 var rawCourse = '';
                 if (dest.details.courses) {
@@ -733,12 +914,17 @@ function renderRecommendations(recs) {
                     days = rawCourse.split(' | ');
                 }
                 
-                // Clean up middle days checkout/departure text
+                // Trim excess days to match targetDays
+                if (days.length > targetDays) {
+                    days = days.slice(0, targetDays);
+                }
+                
+                // Clean up departure text in non-final days
                 for (var i = 0; i < days.length - 1; i++) {
                     days[i] = days[i]
-                        .replace(/->\s*.*귀국/g, '')
-                        .replace(/->\s*.*귀가/g, '')
-                        .replace(/->\s*.*공항\s*이동/g, '')
+                        .replace(/->\s*.*귀국[^,]*/g, '')
+                        .replace(/->\s*.*귀가[^,]*/g, '')
+                        .replace(/->\s*.*공항\s*이동[^,]*/g, '')
                         .replace(/및\s*한국\s*귀국/g, '')
                         .replace(/및\s*귀국/g, '')
                         .replace(/및\s*귀가/g, '');
@@ -759,35 +945,46 @@ function renderRecommendations(recs) {
                     foodList = dest.food.map(function(f) { return f.name; });
                 }
                 
-                if (!spotList || spotList.length === 0) spotList = ['현지 명소', '로컬 스트리트', '주요 랜드마크', '로컬 공원/자연'];
-                if (!foodList || foodList.length === 0) foodList = ['정통 대표 음식', '이색 디저트/카페 맛집'];
+                if (!spotList || spotList.length === 0) spotList = ['현지 명소', '로컬 스트리트', '주요 랜드마크', '자연 명소'];
+                if (!foodList || foodList.length === 0) foodList = ['현지 대표 음식', '이색 디저트/카페'];
                 
-                // Dynamically expand itinerary to match targetDays exactly
+                // Fill itinerary to match targetDays exactly
                 while (days.length < targetDays) {
                     var nextDayNum = days.length + 1;
                     var dayText = '';
+                    var spot1 = spotList[(nextDayNum - 1) % spotList.length];
+                    var spot2 = spotList[nextDayNum % spotList.length];
+                    var food1 = foodList[(nextDayNum - 1) % foodList.length];
                     
-                    if (nextDayNum === 1) {
-                        dayText = nextDayNum + "일차: 공항 도착 후 호텔 체크인 및 휴식 -> " + (spotList[0] || '시내 랜드마크') + " 야경 산책 및 첫 현지 저녁 만찬";
-                    } else if (nextDayNum === targetDays) {
-                        dayText = nextDayNum + "일차: 호텔 체크아웃 및 마지막 쇼핑몰 투어 -> 현지 기념품 구매 후 공항 이동 및 한국 귀국";
-                    } else {
-                        var spot1 = spotList[(nextDayNum - 1) % spotList.length];
-                        var spot2 = spotList[nextDayNum % spotList.length];
-                        var food = foodList[(nextDayNum - 1) % foodList.length];
-                        
-                        if (nextDayNum === 2) {
-                            dayText = nextDayNum + "일차: " + spot1 + " 집중 탐방 및 인생샷 촬영 -> 로컬 핫플레이스 카페거리 -> " + food + " 특선 맛집 탐방";
-                        } else if (nextDayNum === 3) {
-                            dayText = nextDayNum + "일차: 인근 근교 힐링 자연 투어 (" + spot2 + ") -> 여행 피로를 풀어줄 전통 스파/마사지 -> 강변/해안가 낙조 감상";
-                        } else if (nextDayNum === 4) {
-                            dayText = nextDayNum + "일차: 유명 미술관/박물관 예술 기행 -> 아기자기한 골목길/디자인 숍 탐방 -> 현지 야시장 먹거리 정복";
-                        } else if (nextDayNum === 5) {
-                            dayText = nextDayNum + "일차: 로컬 숨겨진 뷰맛집 명소 산책 -> 여유로운 리조트/호텔 수영장 호캉스 -> 품격 있는 현지 파인 다이닝";
-                        } else if (nextDayNum === 6) {
-                            dayText = nextDayNum + "일차: 현지 문화 체험(쿠킹클래스 등) -> 아름다운 공원/광장 피크닉 -> 로컬 라이브 바 야경 즐기기";
+                    if (targetDays === 1) {
+                        dayText = "1일차: " + (spotList[0] || '주요 관광지') + " 방문 및 인생샷 촬영 -> " + (foodList[0] || '현지 맛집') + " 점심 -> " + (spotList[1] || '주변 명소') + " 탐방 후 귀가";
+                    } else if (nextDayNum === 1) {
+                        if (isDomestic) {
+                            dayText = "1일차: " + dest.name + " 도착 및 숙소 체크인 -> " + (spotList[0] || '주요 명소') + " 방문 -> " + (foodList[0] || '현지 맛집') + " 저녁 식사";
                         } else {
-                            dayText = nextDayNum + "일차: " + spot1 + " 및 주변 이색 명소 도보 자유 여행 -> 추천 로컬 스윗 디저트 카페 시식";
+                            dayText = "1일차: 현지 도착 및 호텔 체크인 -> " + (spotList[0] || '랜드마크') + " 야경 산책 -> 첫 현지 저녁 만찬";
+                        }
+                    } else if (nextDayNum === targetDays) {
+                        if (isDomestic) {
+                            dayText = nextDayNum + "일차: " + (spotList[(nextDayNum-1) % spotList.length] || '마지막 명소') + " 방문 -> 지역 기념품 구매 -> 귀가";
+                        } else {
+                            dayText = nextDayNum + "일차: 호텔 체크아웃 -> 마지막 기념품 쇼핑 -> 공항 이동 및 한국 귀국";
+                        }
+                    } else {
+                        if (nextDayNum === 2) {
+                            dayText = "2일차: " + spot1 + " 집중 탐방 및 인생샷 촬영 -> 로컬 카페거리 산책 -> " + food1 + " 맛집 탐방";
+                        } else if (nextDayNum === 3) {
+                            dayText = "3일차: 근교 자연 힐링 투어 (" + spot2 + ") -> " + (isDomestic ? '지역 특산품 쇼핑' : '전통 스파/마사지') + " -> 낙조 감상";
+                        } else if (nextDayNum === 4) {
+                            dayText = "4일차: " + spot1 + " & 박물관/미술관 예술 기행 -> 골목길/디자인 숍 탐방 -> 야시장 먹거리 정복";
+                        } else if (nextDayNum === 5) {
+                            dayText = "5일차: 숨겨진 뷰맛집 명소 산책 -> " + (isDomestic ? '온천/스파 힐링' : '리조트 수영장 호캉스') + " -> 파인 다이닝";
+                        } else if (nextDayNum === 6) {
+                            dayText = "6일차: 현지 문화 체험 (쿠킹클래스/공예 체험) -> 공원/광장 피크닉 -> 로컬 라이브 바";
+                        } else if (nextDayNum === 7) {
+                            dayText = "7일차: " + spot2 + " 자유 일정 -> 현지 기념품 쇼핑 -> " + (isDomestic ? '귀가' : '공항 이동 및 귀국');
+                        } else {
+                            dayText = nextDayNum + "일차: " + spot1 + " 주변 이색 명소 도보 자유 여행 -> 로컬 카페 시식";
                         }
                     }
                     days.push(dayText);
@@ -827,7 +1024,7 @@ function renderRecommendations(recs) {
                 `;
             }
 
-            var imageSrc = dest.image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop';
+            var imageSrc = getLandmarkImage(dest);
             var destName = dest.name || '알 수 없는 목적지';
             var destDesc = dest.description || '목적지 설명이 아직 작성되지 않았습니다.';
             var destMonths = (dest.quickInfo && dest.quickInfo.months) ? dest.quickInfo.months : '연중무휴';
@@ -838,7 +1035,7 @@ function renderRecommendations(recs) {
 
             return `
             <div class="destination-card animate-fade-in" style="animation-delay: ${index * 0.1}s">
-                <img src="${imageSrc}" alt="${destName}" class="card-img" onerror="handleImageError(this, '${destName}')">
+                <img src="${imageSrc}" alt="${destName}" class="card-img" onerror="handleImageError(this, '${dest.id}')">
                 <div class="card-content">
                     <h3 class="card-title">${destName}</h3>
                     <p class="card-desc">${destDesc}</p>
