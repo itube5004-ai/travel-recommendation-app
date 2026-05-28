@@ -797,7 +797,17 @@ var TRAVEL_IMAGES = {
     'i47': 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&auto=format&fit=crop&q=80', // 산토리니 파란지붕
     'i48': 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&auto=format&fit=crop&q=80', // 취리히 설산
     'i49': 'https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=800&auto=format&fit=crop&q=80', // 베네치아 운하
-    'i50': 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&auto=format&fit=crop&q=80'  // 니스 해변
+    'i50': 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&auto=format&fit=crop&q=80',  // 니스 해변
+    'i51': 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80',  // 베이징 만리장성
+    'i52': 'https://images.unsplash.com/photo-1506970135314-c1a9bdde8f68?w=800&auto=format&fit=crop&q=80',  // 상하이 와이탄 야경
+    'i53': 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop&q=80',  // 청두 자이언트 판다
+    'i54': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80',  // 시안 병마용갱 고성
+    'i55': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80',  // 장가계 기암괴석 천문산
+    'i56': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80',  // 나트랑 에메랄드 해변
+    'i57': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=80',  // 치앙마이 란나 사찰
+    'i58': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80',  // 보홀 거북이 해안
+    'i59': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop&q=80',  // 쿠알라룸푸르 트윈타워 야경
+    'i60': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80'   // 끄라비 라일레이 비치 절벽
 };
 
 // 안정적인 백업 플레이스홀더 이미지
