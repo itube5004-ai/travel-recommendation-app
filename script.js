@@ -606,7 +606,18 @@ function calculateRecommendations() {
         }
 
         if (dest.duration) {
-            if (dest.duration.includes(userAnswers.duration)) {
+            let matchesDuration = false;
+            if (userAnswers.duration === '1-3') {
+                matchesDuration = dest.duration.includes('day') || dest.duration.includes('2-3');
+            } else if (userAnswers.duration === '4-7') {
+                matchesDuration = dest.duration.includes('2-3') || dest.duration.includes('4-5') || dest.duration.includes('4-6');
+            } else if (userAnswers.duration === '8+') {
+                matchesDuration = dest.duration.includes('7-14');
+            } else {
+                matchesDuration = dest.duration.includes(userAnswers.duration);
+            }
+            
+            if (matchesDuration) {
                 score += 10;
             } else {
                 score -= 50; // 일정이 불가능한 경우 강력하게 제외
@@ -685,25 +696,25 @@ var TRAVEL_IMAGES = {
     'd18': 'https://images.unsplash.com/photo-1624831618683-bc2754668b55?w=800&auto=format&fit=crop&q=80', // 전주 한옥마을 기와전경
     'd19': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80', // 목포 해상케이블카 유달산
     'd20': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 순천만 황금빛 갈대밭
-    'd21': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 담양 죽녹원 대나무숲
-    'd22': 'https://images.unsplash.com/photo-1513553404607-988bf2703777?w=800&auto=format&fit=crop&q=80', // 통영 한려수도 케이블카
-    'd23': 'https://images.unsplash.com/photo-1601999109332-542b18dbec57?w=800&auto=format&fit=crop&q=80', // 안동 하회마을 전통한옥
-    'd24': 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&auto=format&fit=crop&q=80', // 포항 호미곶 상생의손
-    'd25': 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=800&auto=format&fit=crop&q=80', // 창원 진해벚꽃 경화역
-    'd26': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 천안 독립기념관 겨레의집
-    'd27': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&auto=format&fit=crop&q=80', // 청주 상당산성 성벽
-    'd28': 'https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?w=800&auto=format&fit=crop&q=80', // 공주 공산성 금강교 야경
-    'd29': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80', // 단양 도담삼봉 삼각 바위섬
-    'd30': 'https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?w=800&auto=format&fit=crop&q=80', // 군산 경암동 철길마을 레트로
-    'd31': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80', // 문경새재 전통 성문
-    'd32': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=80', // 남해 독일마을 주황색 지붕
-    'd33': 'https://images.unsplash.com/photo-1473116763269-b552f5872225?w=800&auto=format&fit=crop&q=80', // 거제도 바람의언덕 빨간풍차
-    'd34': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=80', // 보성 녹차밭 계단식 밭
-    'd35': 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80', // 가평 수목원 정원
-    'd36': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 제천 의림지 호수 정자
-    'd37': 'https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?w=800&auto=format&fit=crop&q=80', // 진주 촉석루 의암바위 남강
-    'd38': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80', // 구례 화엄사 웅장한 목조 대웅전
-    'd39': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80', // 완도 청산도 노란 유채꽃과 돌담
+    'd21': 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80', // 담양 죽녹원 대나무숲
+    'd22': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 통영 중앙시장 남해바다
+    'd23': 'https://images.unsplash.com/photo-1624831618683-bc2754668b55?w=800&auto=format&fit=crop&q=80', // 안동 하회마을 전통한옥
+    'd24': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 포항 영일대 해변
+    'd25': 'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800&auto=format&fit=crop&q=80', // 창원 진해 여좌천 벚꽃
+    'd26': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 천안 독립기념관 한옥
+    'd27': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 청주당산성 자연경치
+    'd28': 'https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?w=800&auto=format&fit=crop&q=80', // 공주 공산성 금강뷰 성곽
+    'd29': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 단양 도담삼봉 호수비경
+    'd30': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 군산 경암동철길마을 레트로골목
+    'd31': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80', // 문경새재 도립공원 황톳길
+    'd32': 'https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?w=800&auto=format&fit=crop&q=80', // 남해 독일마을 주황지붕전경
+    'd33': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 거제 바람의언덕 바다절벽
+    'd34': 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80', // 보성 대한다원 녹차밭 초록언덕
+    'd35': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 가평 아침고요수목원 정원숲길
+    'd36': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 제천 청풍호 푸른 호숫가
+    'd37': 'https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?w=800&auto=format&fit=crop&q=80', // 진주 촉석루 남강야경
+    'd38': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80', // 구례 지리산 화엄사 사찰
+    'd39': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 완도 청산도 다랭이길 유채꽃바다
     'd40': 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&auto=format&fit=crop&q=80', // 해남 대흥사 두륜산 기암 절경
     'd41': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 부여 궁남지 백제 연못 정자
     'd42': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 태안 안면도 꽃지해수욕장 할미할아비바위 낙조
@@ -734,28 +745,7 @@ var TRAVEL_IMAGES = {
     'd67': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 고양 일산 호수공원 장미원 꽃밭 호수
     'd68': 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80', // 성남 탄천 징검다리와 가을 갈대길
     'd69': 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&auto=format&fit=crop&q=80', // 과천 국립현대미술관 나선형 내부 램프
-    'd70': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80'  // 구리 아차산 보루 한강 조망 바위 전경hoto-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 양평 두물머리
-    'd50': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80', // 영월 선암마을
-    'd51': 'https://images.unsplash.com/photo-1513553404607-988bf2703777?w=800&auto=format&fit=crop&q=80', // 사천 바다케이블카
-    'd52': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 남양주 수목원
-    'd53': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 포천 아트밸리
-    'd54': 'https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?w=800&auto=format&fit=crop&q=80', // 파주 헤이리
-    'd55': 'https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?w=800&auto=format&fit=crop&q=80', // 광주 남한산성
-    'd56': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 양주 나리공원
-    'd57': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80', // 동두천 소요산
-    'd58': 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80', // 이천 세라피아
-    'd59': 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80', // 안성 팜랜드
-    'd60': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 여주 신륵사
-    'd61': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 평택호
-    'd62': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 오산 수목원
-    'd63': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 의왕 백운호수
-    'd64': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 군포 수리산
-    'd65': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 시흥 갯골생태공원
-    'd66': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 김포 아라뱃길
-    'd67': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 고양 호수공원
-    'd68': 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80', // 성남 판교/공원
-    'd69': 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&auto=format&fit=crop&q=80', // 과천 서울대공원
-    'd70': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 구리 한강공원
+    'd70': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 구리 아차산 보루 한강 조망 바위 전경
 
     // === 해외 (i1 ~ i50) ===
     'i1':  'https://images.unsplash.com/photo-1590559899731-a3826de9a9c4?w=800&auto=format&fit=crop&q=80', // 오사카 도톤보리
@@ -787,7 +777,7 @@ var TRAVEL_IMAGES = {
     'i27': 'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?w=800&auto=format&fit=crop&q=80', // 샌프란시스코 금문교
     'i28': 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&auto=format&fit=crop&q=80', // 로스앤젤레스 피어
     'i29': 'https://images.unsplash.com/photo-1595853035070-59a39fe84de3?w=800&auto=format&fit=crop&q=80', // 뮌헨 시청사
-    'i30': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=800&auto=format&fit=crop&q=80', // 베를린 문
+    'i30': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=800&auto=format&fit=crop&q=80', // 베러린 문
     'i31': 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop&q=80', // 암스테르담 운하
     'i32': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&auto=format&fit=crop&q=80', // 브뤼셀 광장
     'i33': 'https://images.unsplash.com/photo-1509840841025-9088ba78a826?w=800&auto=format&fit=crop&q=80', // 리스본 골목트램
@@ -859,40 +849,50 @@ function renderRecommendations(recs) {
                 // Determine target days based on duration
                 var targetDays = 3;
                 if (userDuration === 'day') targetDays = 1;
-                else if (userDuration === '2-3') targetDays = 3;
-                else if (userDuration === '4-5' || userDuration === '4-6') targetDays = 5;
-                else if (userDuration === '7-14') targetDays = 7;
+                else if (userDuration === '2-3' || userDuration === '1-3') targetDays = 3;
+                else if (userDuration === '4-5' || userDuration === '4-6' || userDuration === '4-7') targetDays = 5;
+                else if (userDuration === '7-14' || userDuration === '8+') targetDays = 7;
                 
                 var isDomestic = dest.location === 'domestic';
                 
                 // Get available courses - Prioritize best duration match robustly
-                var rawCourse = '';
+                var rawCourse = null;
+                var days = [];
                 if (dest.details.courses) {
-                    var priorityKeys = [userDuration];
-                    if (userDuration === '4-5' || userDuration === '4-6') {
-                        priorityKeys.push('7-14', '2-3', 'day');
-                    } else if (userDuration === '7-14') {
-                        priorityKeys.push('4-6', '4-5', '2-3', 'day');
-                    } else if (userDuration === '2-3') {
-                        priorityKeys.push('4-5', '4-6', 'day', '7-14');
-                    } else if (userDuration === 'day') {
-                        priorityKeys.push('2-3', '4-5', '4-6', '7-14');
-                    }
-                    
-                    for (var k = 0; k < priorityKeys.length; k++) {
-                        if (dest.details.courses[priorityKeys[k]]) {
-                            rawCourse = dest.details.courses[priorityKeys[k]];
-                            break;
+                    if (Array.isArray(dest.details.courses)) {
+                        // Format B: Array of course objects
+                        var matchedCourse = dest.details.courses[0];
+                        if (matchedCourse && matchedCourse.schedule) {
+                            // Extract to days array by copying it
+                            days = matchedCourse.schedule.slice(0);
+                        }
+                    } else {
+                        // Format A: Object of strings
+                        var priorityKeys = [];
+                        if (userDuration === '1-3') {
+                            priorityKeys = ['2-3', 'day', '4-5', '4-6', '7-14'];
+                        } else if (userDuration === '4-7') {
+                            priorityKeys = ['4-5', '4-6', '7-14', '2-3', 'day'];
+                        } else if (userDuration === '8+') {
+                            priorityKeys = ['7-14', '4-6', '4-5', '2-3', 'day'];
+                        } else {
+                            priorityKeys = [userDuration, '2-3', '4-5', '4-6', '7-14', 'day'];
+                        }
+                        
+                        for (var k = 0; k < priorityKeys.length; k++) {
+                            if (dest.details.courses[priorityKeys[k]]) {
+                                rawCourse = dest.details.courses[priorityKeys[k]];
+                                break;
+                            }
+                        }
+                        if (!rawCourse) {
+                            rawCourse = Object.values(dest.details.courses)[0] || '';
+                        }
+                        
+                        if (typeof rawCourse === 'string' && rawCourse.length > 0) {
+                            days = rawCourse.split(' | ');
                         }
                     }
-                    if (!rawCourse) {
-                        rawCourse = Object.values(dest.details.courses)[0] || '';
-                    }
-                }
-                
-                var days = [];
-                if (typeof rawCourse === 'string' && rawCourse.length > 0) {
-                    days = rawCourse.split(' | ');
                 }
                 
                 // Detect simple dynamic timeline (like morning/lunch/dinner without clear day indicator)
@@ -981,6 +981,13 @@ function renderRecommendations(recs) {
                         }
                     }
                     days.push(dayText);
+                }
+                
+                // Guarantee strictly sequential day numbering to prevent duplicate/skipped days
+                for (var dIdx = 0; dIdx < days.length; dIdx++) {
+                    var correctDayNum = dIdx + 1;
+                    var cleanDayContent = days[dIdx].replace(/^(\d+)(일차|Day):?\s*/i, '');
+                    days[dIdx] = correctDayNum + "일차: " + cleanDayContent;
                 }
                 
                 // Format the itinerary beautifully in vertical HTML
