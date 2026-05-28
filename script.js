@@ -460,15 +460,6 @@ function initApp() {
     DOM.resultsSection.classList.add('hidden');
     
     renderStep();
-    
-    DOM.prevBtn.replaceWith(DOM.prevBtn.cloneNode(true));
-    DOM.restartBtn.replaceWith(DOM.restartBtn.cloneNode(true));
-    
-    DOM.prevBtn = document.getElementById('prev-btn');
-    DOM.restartBtn = document.getElementById('restart-btn');
-    
-    DOM.prevBtn.addEventListener('click', handlePrev);
-    DOM.restartBtn.addEventListener('click', initApp);
 }
 
 function getActiveQuestions() {
@@ -1089,5 +1080,9 @@ function renderRecommendations(recs) {
     DOM.resultsGrid.innerHTML = html || '<p>조건에 맞는 여행지를 찾지 못했습니다.</p>';
 }
 
-// Start
-document.addEventListener('DOMContentLoaded', initApp);
+// Start & Single Bind Events safely
+document.addEventListener('DOMContentLoaded', function() {
+    initApp();
+    if (DOM.prevBtn) DOM.prevBtn.addEventListener('click', handlePrev);
+    if (DOM.restartBtn) DOM.restartBtn.addEventListener('click', initApp);
+});
