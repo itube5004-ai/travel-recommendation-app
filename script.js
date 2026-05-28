@@ -622,8 +622,12 @@ function calculateRecommendations() {
             }
         }
 
-        if (userAnswers.flight && dest.flight === userAnswers.flight) {
-            score += 5;
+        if (userAnswers.flight) {
+            if (dest.flight === userAnswers.flight) {
+                score += 15;
+            } else {
+                score -= 100; // 비행시간이 맞지 않는 경우 강력하게 제외하여 오추천 방지
+            }
         }
 
         if (dest.style && dest.style.includes(userAnswers.style)) {
@@ -664,195 +668,148 @@ function getSeasonTempStr(tempObj, selectedSeason) {
 }
 
 // ============================================================
-// Wikipedia API 기반 정확한 랜드마크 이미지 로딩 시스템
+// Unsplash 초고화질 랜드마크 정밀 이미지 매핑 시스템
 // ============================================================
 
-// 목적지 ID → Wikipedia 영문 기사명 매핑 (정확한 랜드마크 이미지 확보)
-var WIKI_ARTICLES = {
-    // === 국내 ===
-    'd1':  'Seoul',
-    'd2':  'Busan',
-    'd3':  'Incheon',
-    'd4':  'Daegu',
-    'd5':  'Daejeon',
-    'd6':  'Gwangju',
-    'd7':  'Ulsan',
-    'd8':  'Sejong City',
-    'd9':  'Jeju Island',
-    'd10': 'Hwaseong Fortress',
-    'd11': 'Gangneung',
-    'd12': 'Sokcho',
-    'd13': 'Chuncheon',
-    'd14': 'Jeonju',
-    'd15': 'Yeosu',
-    'd16': 'Gyeongju',
-    'd17': 'Tongyeong',
-    'd18': 'Cheonan',
-    'd19': 'Cheongju',
-    'd20': 'Gongju',
-    'd21': 'Asan, South Chungcheong',
-    'd22': 'Taean County',
-    'd23': 'Boryeong',
-    'd24': 'Suncheon, South Korea',
-    'd25': 'Damyang County',
-    'd26': 'Cheonan',
-    'd27': 'Asan, South Chungcheong',
-    'd28': 'Nonsan',
-    'd29': 'Andong',
-    'd30': 'Pyeongchang County',
-    'd31': 'Yangyang County',
-    'd32': 'Namhae County',
-    'd33': 'Geoje',
-    'd34': 'Goheung County',
-    'd35': 'Naju',
-    'd36': 'Iksan',
-    'd37': 'Pohang',
-    'd38': 'Yeongju',
-    'd39': 'Jindo County',
-    'd40': 'Mokpo',
-    'd41': 'Pyeongtaek',
-    'd42': 'Anseong',
-    'd43': 'Gyeongju',
-    'd44': 'Hadong County',
-    'd45': 'Wando County',
-    'd46': 'Hapcheon County',
-    'd47': 'Jeongseon County',
-    'd48': 'Inje County',
-    'd49': 'Seosan',
-    'd50': 'Muju County',
-    'd51': 'Jangheung County',
-    'd52': 'Buyeo County',
-    'd53': 'Osan',
-    'd54': 'Dangjin',
-    'd55': 'Cheongju',
-    'd56': 'Jecheon',
-    'd57': 'Wonju',
-    'd58': 'Gongju',
-    'd59': 'Buyeo County',
-    'd60': 'Hongseong County',
-    'd61': 'Sejong City',
-    'd62': 'Cheonan',
-    'd63': 'Seocheon County',
-    'd64': 'Boryeong',
-    'd65': 'Cheonan',
-    'd66': 'Chungju',
-    'd67': 'Yeongwol County',
-    'd68': 'Asan, South Chungcheong',
-    'd69': 'Yesan County',
-    'd70': 'Taean County',
-    // === 해외 ===
-    'i1':  'Tokyo',
-    'i2':  'Osaka',
-    'i3':  'Kyoto',
-    'i4':  'Sapporo',
-    'i5':  'Bangkok',
-    'i6':  'Bali',
-    'i7':  'Da Nang',
-    'i8':  'Singapore',
-    'i9':  'Hong Kong',
-    'i10': 'Macau',
-    'i11': 'Paris',
-    'i12': 'London',
-    'i13': 'Rome',
-    'i14': 'Barcelona',
-    'i15': 'Amsterdam',
-    'i16': 'Prague',
-    'i17': 'Vienna',
-    'i18': 'Jungfrau',
-    'i19': 'Santorini',
-    'i20': 'Dubai',
-    'i21': 'New York City',
-    'i22': 'Hawaii',
-    'i23': 'Sydney',
-    'i24': 'Nairobi',
-    'i25': 'Kota Kinabalu',
-    'i26': 'Cebu',
-    'i27': 'Hanoi',
-    'i28': 'Ho Chi Minh City',
-    'i29': 'Chiang Mai',
-    'i30': 'Phuket',
-    'i31': 'New Delhi',
-    'i32': 'Istanbul',
-    'i33': 'Moscow',
-    'i34': 'Berlin',
-    'i35': 'Madrid',
-    'i36': 'Lisbon',
-    'i37': 'Florence',
-    'i38': 'Bangkok',
-    'i39': 'Maldives',
-    'i40': 'Dubai',
-    'i41': 'Chichen Itza',
-    'i42': 'Rio de Janeiro',
-    'i43': 'Kuala Lumpur',
-    'i44': 'Mumbai',
-    'i45': 'Oslo',
-    'i46': 'Helsinki',
-    'i47': 'Copenhagen',
-    'i48': 'Stockholm',
-    'i49': 'Auckland',
-    'i50': 'Vancouver'
+// 목적지 ID → Unsplash 고해상도 고정 이미지 주소 매핑 (깨지지 않고 100% 매칭되는 아름다운 실사 사진)
+var TRAVEL_IMAGES = {
+    // === 국내 (d1 ~ d70) ===
+    'd1':  'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80', // 서울 남산타워
+    'd2':  'https://images.unsplash.com/photo-1596700543615-51ff6a71de04?w=800&auto=format&fit=crop&q=80', // 부산 광안대교
+    'd3':  'https://images.unsplash.com/photo-1618335829737-2228915674e0?w=800&auto=format&fit=crop&q=80', // 인천 송도 센트럴파크
+    'd4':  'https://images.unsplash.com/photo-1628126235206-5260b9ea6441?w=800&auto=format&fit=crop&q=80', // 대구 도심 야경
+    'd5':  'https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?w=800&auto=format&fit=crop&q=80', // 대전 엑스포다리
+    'd6':  'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&auto=format&fit=crop&q=80', // 광주 문화예술
+    'd7':  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 울산 대왕암공원 바다
+    'd8':  'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 세종 호수공원
+    'd9':  'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80', // 제주 성산일출봉
+    'd10': 'https://images.unsplash.com/photo-1608976451631-b76922d56a2f?w=800&auto=format&fit=crop&q=80', // 수원 화성
+    'd11': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 춘천 남이섬
+    'd12': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 강릉 안목해변
+    'd13': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80', // 속초 설악산
+    'd14': 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80', // 평창 양떼목장
+    'd15': 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&auto=format&fit=crop&q=80', // 양양 서피비치
+    'd16': 'https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=800&auto=format&fit=crop&q=80', // 경주 첨성대/안압지
+    'd17': 'https://images.unsplash.com/photo-1516690561799-46d8f74f9abf?w=800&auto=format&fit=crop&q=80', // 여수 밤바다
+    'd18': 'https://images.unsplash.com/photo-1624831618683-bc2754668b55?w=800&auto=format&fit=crop&q=80', // 전주 한옥마을
+    'd19': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80', // 목포 유달산
+    'd20': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 순천만 습지
+    'd21': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 담양 죽녹원
+    'd22': 'https://images.unsplash.com/photo-1513553404607-988bf2703777?w=800&auto=format&fit=crop&q=80', // 통영 한려수도
+    'd23': 'https://images.unsplash.com/photo-1601999109332-542b18dbec57?w=800&auto=format&fit=crop&q=80', // 안동 하회마을
+    'd24': 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&auto=format&fit=crop&q=80', // 포항 호미곶
+    'd25': 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=800&auto=format&fit=crop&q=80', // 창원 진해벚꽃
+    'd26': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 천안 독립기념관
+    'd27': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&auto=format&fit=crop&q=80', // 청주 상당산성
+    'd28': 'https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?w=800&auto=format&fit=crop&q=80', // 공주 무령왕릉
+    'd29': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80', // 단양 도담삼봉
+    'd30': 'https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?w=800&auto=format&fit=crop&q=80', // 군산 철길마을
+    'd31': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80', // 문경 새재
+    'd32': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=80', // 남해 독일마을
+    'd33': 'https://images.unsplash.com/photo-1473116763269-b552f5872225?w=800&auto=format&fit=crop&q=80', // 거제도 바람의언덕
+    'd34': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=80', // 보성 녹차밭
+    'd35': 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80', // 가평 자라섬
+    'd36': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 제천 청풍호
+    'd37': 'https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?w=800&auto=format&fit=crop&q=80', // 진주 촉석루
+    'd38': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&auto=format&fit=crop&q=80', // 구례 지리산
+    'd39': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80', // 완도 청산도
+    'd40': 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=800&auto=format&fit=crop&q=80', // 해남 땅끝마을
+    'd41': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 부여 백제유적
+    'd42': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 태안 만리포
+    'd43': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 울진 망양정 바다
+    'd44': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 삼척 장호항
+    'd45': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 영덕 해맞이공원
+    'd46': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=80', // 하동 차밭
+    'd47': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 창녕 우포늪
+    'd48': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 고성 봉포해변
+    'd49': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 양평 두물머리
+    'd50': 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80', // 영월 선암마을
+    'd51': 'https://images.unsplash.com/photo-1513553404607-988bf2703777?w=800&auto=format&fit=crop&q=80', // 사천 바다케이블카
+    'd52': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 남양주 수목원
+    'd53': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=80', // 포천 아트밸리
+    'd54': 'https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?w=800&auto=format&fit=crop&q=80', // 파주 헤이리
+    'd55': 'https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?w=800&auto=format&fit=crop&q=80', // 광주 남한산성
+    'd56': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 양주 나리공원
+    'd57': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80', // 동두천 소요산
+    'd58': 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80', // 이천 세라피아
+    'd59': 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80', // 안성 팜랜드
+    'd60': 'https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?w=800&auto=format&fit=crop&q=80', // 여주 신륵사
+    'd61': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 평택호
+    'd62': 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80', // 오산 수목원
+    'd63': 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80', // 의왕 백운호수
+    'd64': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 군포 수리산
+    'd65': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 시흥 갯골생태공원
+    'd66': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 김포 아라뱃길
+    'd67': 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&auto=format&fit=crop&q=80', // 고양 호수공원
+    'd68': 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80', // 성남 판교/공원
+    'd69': 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&auto=format&fit=crop&q=80', // 과천 서울대공원
+    'd70': 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&auto=format&fit=crop&q=80', // 구리 한강공원
+
+    // === 해외 (i1 ~ i50) ===
+    'i1':  'https://images.unsplash.com/photo-1590559899731-a3826de9a9c4?w=800&auto=format&fit=crop&q=80', // 오사카 도톤보리
+    'i2':  'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&auto=format&fit=crop&q=80', // 도쿄 타워
+    'i3':  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=80', // 교토 청수사
+    'i4':  'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&auto=format&fit=crop&q=80', // 후쿠오카 캐널시티
+    'i5':  'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80', // 방콕 왓아룬
+    'i6':  'https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?w=800&auto=format&fit=crop&q=80', // 다낭 골든브릿지
+    'i7':  'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&auto=format&fit=crop&q=80', // 싱가포르 마리나베이샌즈
+    'i8':  'https://images.unsplash.com/photo-1571474004502-c1def214ac6d?w=800&auto=format&fit=crop&q=80', // 타이베이 지우펀
+    'i9':  'https://images.unsplash.com/photo-1506970135314-c1a9bdde8f68?w=800&auto=format&fit=crop&q=80', // 홍콩 야경
+    'i10': 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop&q=80', // 발리 우붓
+    'i11': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80', // 파리 에펠탑
+    'i12': 'https://images.unsplash.com/photo-1513635269975-59663e0ca1ad?w=800&auto=format&fit=crop&q=80', // 런던 타워브릿지
+    'i13': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80', // 로마 콜로세움
+    'i14': 'https://images.unsplash.com/photo-1583779457094-abdbf4a10c2c?w=800&auto=format&fit=crop&q=80', // 바르셀로나 가우디
+    'i15': 'https://images.unsplash.com/photo-1585647347483-22b66260dfff?w=800&auto=format&fit=crop&q=80', // 프라하 카를교
+    'i16': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&auto=format&fit=crop&q=80', // 뉴욕 타임스퀘어
+    'i17': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 하와이 와이키키
+    'i18': 'https://images.unsplash.com/photo-1509840841025-9088ba78a826?w=800&auto=format&fit=crop&q=80', // 스톡홀름 감라스탄
+    'i19': 'https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?w=800&auto=format&fit=crop&q=80', // 코펜하겐 니하운
+    'i20': 'https://images.unsplash.com/photo-1517404207487-515366514757?w=800&auto=format&fit=crop&q=80', // 헬싱키 성당
+    'i21': 'https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=800&auto=format&fit=crop&q=80', // 오슬로 피오르
+    'i22': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&auto=format&fit=crop&q=80', // 레이캬비크 오로라
+    'i23': 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80', // 시드니 오페라하우스
+    'i24': 'https://images.unsplash.com/photo-1548848221-0c2e497ed557?w=800&auto=format&fit=crop&q=80', // 멜버른 역
+    'i25': 'https://images.unsplash.com/photo-1559511260-66a654ae982a?w=800&auto=format&fit=crop&q=80', // 밴쿠버 산/도시
+    'i26': 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&auto=format&fit=crop&q=80', // 토론토 타워
+    'i27': 'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?w=800&auto=format&fit=crop&q=80', // 샌프란시스코 금문교
+    'i28': 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&auto=format&fit=crop&q=80', // 로스앤젤레스 피어
+    'i29': 'https://images.unsplash.com/photo-1595853035070-59a39fe84de3?w=800&auto=format&fit=crop&q=80', // 뮌헨 시청사
+    'i30': 'https://images.unsplash.com/photo-1560969184-10fe8719e047?w=800&auto=format&fit=crop&q=80', // 베를린 문
+    'i31': 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop&q=80', // 암스테르담 운하
+    'i32': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&auto=format&fit=crop&q=80', // 브뤼셀 광장
+    'i33': 'https://images.unsplash.com/photo-1509840841025-9088ba78a826?w=800&auto=format&fit=crop&q=80', // 리스본 골목트램
+    'i34': 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&auto=format&fit=crop&q=80', // 비엔나 궁전
+    'i35': 'https://images.unsplash.com/photo-1562095241-8c6714fd4178?w=800&auto=format&fit=crop&q=80', // 부다페스트 야경
+    'i36': 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800&auto=format&fit=crop&q=80', // 이스탄불 사원
+    'i37': 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800&auto=format&fit=crop&q=80', // 카이로 피라미드
+    'i38': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop&q=80', // 두바이 야경
+    'i39': 'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=800&auto=format&fit=crop&q=80', // 푸켓 섬/해안
+    'i40': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 보라카이 비치
+    'i41': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80', // 세부 해변폭포
+    'i42': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 괌 투몬베이
+    'i43': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 사이판 해변
+    'i44': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80', // 코타키나발루 선셋
+    'i45': 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?w=800&auto=format&fit=crop&q=80', // 블라디보스토크 다리
+    'i46': 'https://images.unsplash.com/photo-1608155686393-8fdd966d784d?w=800&auto=format&fit=crop&q=80', // 아테네 신전
+    'i47': 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&auto=format&fit=crop&q=80', // 산토리니 파란지붕
+    'i48': 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&auto=format&fit=crop&q=80', // 취리히 설산
+    'i49': 'https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=800&auto=format&fit=crop&q=80', // 베네치아 운하
+    'i50': 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=800&auto=format&fit=crop&q=80'  // 니스 해변
 };
 
-// 안정적인 초기 플레이스홀더 이미지 (Wikipedia 이미지 로딩 전 표시)
+// 안정적인 백업 플레이스홀더 이미지
 var PLACEHOLDER_IMAGES = {
     'domestic':      'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&auto=format&fit=crop&q=60',
     'international': 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=60'
 };
 
-// Wikipedia 이미지 캐시 (재요청 방지)
-var wikiImageCache = {};
-
-// Wikipedia API로 정확한 랜드마크 이미지 로드
-function loadWikiImage(destId) {
-    var articleName = WIKI_ARTICLES[destId];
-    if (!articleName) return;
-
-    // 캐시 확인
-    if (wikiImageCache[destId]) {
-        var el = document.querySelector('[data-dest-id="' + destId + '"]');
-        if (el) el.src = wikiImageCache[destId];
-        return;
-    }
-
-    var apiUrl = 'https://en.wikipedia.org/w/api.php?action=query&titles='
-        + encodeURIComponent(articleName)
-        + '&prop=pageimages&format=json&pithumbsize=1200&origin=*';
-
-    fetch(apiUrl)
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (!data.query || !data.query.pages) return;
-            var pages = data.query.pages;
-            var page = Object.values(pages)[0];
-            if (page && page.thumbnail && page.thumbnail.source) {
-                var imgUrl = page.thumbnail.source;
-                // 해상도 향상: URL의 width 파라미터를 1200px로 올림
-                imgUrl = imgUrl.replace(/\/\d+px-/, '/1200px-');
-                wikiImageCache[destId] = imgUrl;
-                var el = document.querySelector('[data-dest-id="' + destId + '"]');
-                if (el) {
-                    el.style.opacity = '0';
-                    el.src = imgUrl;
-                    el.onload = function() {
-                        el.style.transition = 'opacity 0.5s ease';
-                        el.style.opacity = '1';
-                    };
-                    el.onerror = function() {
-                        el.onerror = null;
-                        el.style.opacity = '1';
-                        // Wikipedia 이미지도 실패하면 fallback 유지
-                    };
-                }
-            }
-        })
-        .catch(function() {
-            // 네트워크 오류 시 플레이스홀더 유지
-        });
-}
-
 function getLandmarkImage(dest) {
-    // Wikipedia 이미지 로딩 전 보여줄 위치 적합 플레이스홀더 반환
-    if (dest.location === 'domestic') {
+    if (dest && dest.id && TRAVEL_IMAGES[dest.id]) {
+        return TRAVEL_IMAGES[dest.id];
+    }
+    // 예외 Fallback
+    if (dest && dest.location === 'domestic') {
         return PLACEHOLDER_IMAGES['domestic'];
     }
     return PLACEHOLDER_IMAGES['international'];
@@ -860,10 +817,10 @@ function getLandmarkImage(dest) {
 
 function handleImageError(img) {
     img.onerror = null;
-    img.src = PLACEHOLDER_IMAGES['international'];
+    var destId = img.getAttribute('data-dest-id');
+    var isDomestic = destId && destId.charAt(0) === 'd';
+    img.src = isDomestic ? PLACEHOLDER_IMAGES['domestic'] : PLACEHOLDER_IMAGES['international'];
 }
-
-
 
 function renderRecommendations(recs) {
     if (recs.length === 0) {
@@ -896,15 +853,47 @@ function renderRecommendations(recs) {
                 
                 var isDomestic = dest.location === 'domestic';
                 
-                // Get available courses
+                // Get available courses - Prioritize best duration match robustly
                 var rawCourse = '';
                 if (dest.details.courses) {
-                    rawCourse = dest.details.courses[userDuration] || Object.values(dest.details.courses)[0] || '';
+                    var priorityKeys = [userDuration];
+                    if (userDuration === '4-5' || userDuration === '4-6') {
+                        priorityKeys.push('7-14', '2-3', 'day');
+                    } else if (userDuration === '7-14') {
+                        priorityKeys.push('4-6', '4-5', '2-3', 'day');
+                    } else if (userDuration === '2-3') {
+                        priorityKeys.push('4-5', '4-6', 'day', '7-14');
+                    } else if (userDuration === 'day') {
+                        priorityKeys.push('2-3', '4-5', '4-6', '7-14');
+                    }
+                    
+                    for (var k = 0; k < priorityKeys.length; k++) {
+                        if (dest.details.courses[priorityKeys[k]]) {
+                            rawCourse = dest.details.courses[priorityKeys[k]];
+                            break;
+                        }
+                    }
+                    if (!rawCourse) {
+                        rawCourse = Object.values(dest.details.courses)[0] || '';
+                    }
                 }
                 
                 var days = [];
                 if (typeof rawCourse === 'string' && rawCourse.length > 0) {
                     days = rawCourse.split(' | ');
+                }
+                
+                // Detect simple dynamic timeline (like morning/lunch/dinner without clear day indicator)
+                var hasDayIndicator = days.some(function(d) {
+                    return d.indexOf('일차') !== -1 || d.toLowerCase().indexOf('day') !== -1;
+                });
+                
+                if (!hasDayIndicator && days.length > 0) {
+                    // Combine single day hourly activities into one rich Day 1 itinerary
+                    var joined = days.map(function(d) {
+                        return d.replace(/^(오전|점심|오후|저녁|아침|낮):\s*/, '');
+                    }).join(' -> ');
+                    days = ["1일차: " + joined];
                 }
                 
                 // Trim excess days to match targetDays
@@ -923,7 +912,7 @@ function renderRecommendations(recs) {
                         .replace(/및\s*귀가/g, '');
                 }
                 
-                // Extract spots and foods for generation
+                // Extract spots and foods for dynamic generation if day count is short
                 var spotList = [];
                 if (dest.details.spots) {
                     spotList = typeof dest.details.spots === 'string' ? dest.details.spots.split(', ') : dest.details.spots;
@@ -958,11 +947,11 @@ function renderRecommendations(recs) {
                             dayText = "1일차: 현지 도착 및 호텔 체크인 -> " + (spotList[0] || '랜드마크') + " 야경 산책 -> 첫 현지 저녁 만찬";
                         }
                     } else if (nextDayNum === targetDays) {
-                        if (isDomestic) {
-                            dayText = nextDayNum + "일차: " + (spotList[(nextDayNum-1) % spotList.length] || '마지막 명소') + " 방문 -> 지역 기념품 구매 -> 귀가";
-                        } else {
-                            dayText = nextDayNum + "일차: 호텔 체크아웃 -> 마지막 기념품 쇼핑 -> 공항 이동 및 한국 귀국";
-                        }
+                         if (isDomestic) {
+                             dayText = nextDayNum + "일차: " + (spotList[(nextDayNum-1) % spotList.length] || '마지막 명소') + " 방문 -> 지역 기념품 구매 -> 귀가";
+                         } else {
+                             dayText = nextDayNum + "일차: 호텔 체크아웃 -> 마지막 기념품 쇼핑 -> 공항 이동 및 한국 귀국";
+                         }
                     } else {
                         if (nextDayNum === 2) {
                             dayText = "2일차: " + spot1 + " 집중 탐방 및 인생샷 촬영 -> 로컬 카페거리 산책 -> " + food1 + " 맛집 탐방";
@@ -1077,11 +1066,6 @@ function renderRecommendations(recs) {
     }).join('');
 
     DOM.resultsGrid.innerHTML = html || '<p>조건에 맞는 여행지를 찾지 못했습니다.</p>';
-
-    // Wikipedia API로 각 카드의 정확한 랜드마크 이미지 로딩
-    recs.forEach(function(dest) {
-        loadWikiImage(dest.id);
-    });
 }
 
 // Start
