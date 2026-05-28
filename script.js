@@ -663,6 +663,36 @@ function getSeasonTempStr(tempObj, selectedSeason) {
     return tempObj['spring'] || "-";
 }
 
+function handleImageError(img, name) {
+    img.onerror = null; // Prevent infinite loop
+    
+    var fallbacks = {
+        '서울': 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&auto=format&fit=crop',
+        '부산': 'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?w=800&auto=format&fit=crop',
+        '인천': 'https://images.unsplash.com/photo-1590483736622-39da8af75bba?w=800&auto=format&fit=crop',
+        '제주': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop',
+        '도쿄': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop',
+        '오사카': 'https://images.unsplash.com/photo-1590253507317-09d57a41496a?w=800&auto=format&fit=crop',
+        '교토': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop',
+        '방콕': 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop',
+        '다낭': 'https://images.unsplash.com/photo-1555529633-0bd2655ab254?w=800&auto=format&fit=crop',
+        '싱가포르': 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&auto=format&fit=crop',
+        '파리': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop',
+        '런던': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&auto=format&fit=crop',
+        '로마': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop',
+        '뉴욕': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&auto=format&fit=crop',
+        '하와이': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop',
+        '시드니': 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop'
+    };
+    
+    if (fallbacks[name]) {
+        img.src = fallbacks[name];
+    } else {
+        // High quality general travel placeholder
+        img.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop';
+    }
+}
+
 function renderRecommendations(recs) {
     if (recs.length === 0) {
         DOM.resultsGrid.innerHTML = '<p>조건에 맞는 여행지를 찾지 못했습니다.</p>';
@@ -685,22 +715,91 @@ function renderRecommendations(recs) {
                     weatherDesc = dest.details.weatherDesc[userSeason] || dest.details.weatherDesc['spring'] || '여행하기 좋은 날씨입니다.';
                 }
                 
-                var courseDesc = '추천 일정이 곧 추가될 예정입니다.';
+                // Determine target days based on duration
+                var targetDays = 3;
+                if (userDuration === 'day') targetDays = 1;
+                else if (userDuration === '2-3') targetDays = 3;
+                else if (userDuration === '4-5' || userDuration === '4-6') targetDays = 5;
+                else if (userDuration === '7-14') targetDays = 7;
+                
+                // Get available courses
+                var rawCourse = '';
                 if (dest.details.courses) {
-                    var rawCourse = dest.details.courses[userDuration] || Object.values(dest.details.courses)[0] || '추천 일정이 곧 추가될 예정입니다.';
-                    
-                    if (typeof rawCourse === 'string') {
-                        var days = rawCourse.split(' | ');
-                        courseDesc = '<div class="course-list" style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; padding-left: 0.8rem; border-left: 2px solid var(--primary);">';
-                        days.forEach(function(dayText) {
-                            var formattedDay = dayText.replace(/(\d+)일차:?/g, '<strong style="color: var(--primary);">$1Day:</strong>');
-                            courseDesc += '<div class="course-day" style="line-height: 1.4;">' + formattedDay + '</div>';
-                        });
-                        courseDesc += '</div>';
-                    } else {
-                        courseDesc = rawCourse;
-                    }
+                    rawCourse = dest.details.courses[userDuration] || Object.values(dest.details.courses)[0] || '';
                 }
+                
+                var days = [];
+                if (typeof rawCourse === 'string' && rawCourse.length > 0) {
+                    days = rawCourse.split(' | ');
+                }
+                
+                // Clean up middle days checkout/departure text
+                for (var i = 0; i < days.length - 1; i++) {
+                    days[i] = days[i]
+                        .replace(/->\s*.*귀국/g, '')
+                        .replace(/->\s*.*귀가/g, '')
+                        .replace(/->\s*.*공항\s*이동/g, '')
+                        .replace(/및\s*한국\s*귀국/g, '')
+                        .replace(/및\s*귀국/g, '')
+                        .replace(/및\s*귀가/g, '');
+                }
+                
+                // Extract spots and foods for generation
+                var spotList = [];
+                if (dest.details.spots) {
+                    spotList = typeof dest.details.spots === 'string' ? dest.details.spots.split(', ') : dest.details.spots;
+                } else if (dest.spots) {
+                    spotList = dest.spots.map(function(s) { return s.name; });
+                }
+                
+                var foodList = [];
+                if (dest.details.food) {
+                    foodList = typeof dest.details.food === 'string' ? dest.details.food.split(', ') : dest.details.food;
+                } else if (dest.food) {
+                    foodList = dest.food.map(function(f) { return f.name; });
+                }
+                
+                if (!spotList || spotList.length === 0) spotList = ['현지 명소', '로컬 스트리트', '주요 랜드마크', '로컬 공원/자연'];
+                if (!foodList || foodList.length === 0) foodList = ['정통 대표 음식', '이색 디저트/카페 맛집'];
+                
+                // Dynamically expand itinerary to match targetDays exactly
+                while (days.length < targetDays) {
+                    var nextDayNum = days.length + 1;
+                    var dayText = '';
+                    
+                    if (nextDayNum === 1) {
+                        dayText = nextDayNum + "일차: 공항 도착 후 호텔 체크인 및 휴식 -> " + (spotList[0] || '시내 랜드마크') + " 야경 산책 및 첫 현지 저녁 만찬";
+                    } else if (nextDayNum === targetDays) {
+                        dayText = nextDayNum + "일차: 호텔 체크아웃 및 마지막 쇼핑몰 투어 -> 현지 기념품 구매 후 공항 이동 및 한국 귀국";
+                    } else {
+                        var spot1 = spotList[(nextDayNum - 1) % spotList.length];
+                        var spot2 = spotList[nextDayNum % spotList.length];
+                        var food = foodList[(nextDayNum - 1) % foodList.length];
+                        
+                        if (nextDayNum === 2) {
+                            dayText = nextDayNum + "일차: " + spot1 + " 집중 탐방 및 인생샷 촬영 -> 로컬 핫플레이스 카페거리 -> " + food + " 특선 맛집 탐방";
+                        } else if (nextDayNum === 3) {
+                            dayText = nextDayNum + "일차: 인근 근교 힐링 자연 투어 (" + spot2 + ") -> 여행 피로를 풀어줄 전통 스파/마사지 -> 강변/해안가 낙조 감상";
+                        } else if (nextDayNum === 4) {
+                            dayText = nextDayNum + "일차: 유명 미술관/박물관 예술 기행 -> 아기자기한 골목길/디자인 숍 탐방 -> 현지 야시장 먹거리 정복";
+                        } else if (nextDayNum === 5) {
+                            dayText = nextDayNum + "일차: 로컬 숨겨진 뷰맛집 명소 산책 -> 여유로운 리조트/호텔 수영장 호캉스 -> 품격 있는 현지 파인 다이닝";
+                        } else if (nextDayNum === 6) {
+                            dayText = nextDayNum + "일차: 현지 문화 체험(쿠킹클래스 등) -> 아름다운 공원/광장 피크닉 -> 로컬 라이브 바 야경 즐기기";
+                        } else {
+                            dayText = nextDayNum + "일차: " + spot1 + " 및 주변 이색 명소 도보 자유 여행 -> 추천 로컬 스윗 디저트 카페 시식";
+                        }
+                    }
+                    days.push(dayText);
+                }
+                
+                // Format the itinerary beautifully in vertical HTML
+                var courseDesc = '<div class="course-list" style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; padding-left: 0.8rem; border-left: 2px solid var(--primary);">';
+                days.forEach(function(dayText) {
+                    var formattedDay = dayText.replace(/(\d+)일차:?/g, '<strong style="color: var(--primary);">$1Day:</strong>');
+                    courseDesc += '<div class="course-day" style="line-height: 1.4;">' + formattedDay + '</div>';
+                });
+                courseDesc += '</div>';
                 
                 var durationLabel = userDuration;
                 if (typeof activeQuestions !== 'undefined' && activeQuestions.find) {
@@ -728,7 +827,7 @@ function renderRecommendations(recs) {
                 `;
             }
 
-            var imageSrc = dest.image || 'https://loremflickr.com/800/600/travel';
+            var imageSrc = dest.image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop';
             var destName = dest.name || '알 수 없는 목적지';
             var destDesc = dest.description || '목적지 설명이 아직 작성되지 않았습니다.';
             var destMonths = (dest.quickInfo && dest.quickInfo.months) ? dest.quickInfo.months : '연중무휴';
@@ -739,7 +838,7 @@ function renderRecommendations(recs) {
 
             return `
             <div class="destination-card animate-fade-in" style="animation-delay: ${index * 0.1}s">
-                <img src="${imageSrc}" alt="${destName}" class="card-img">
+                <img src="${imageSrc}" alt="${destName}" class="card-img" onerror="handleImageError(this, '${destName}')">
                 <div class="card-content">
                     <h3 class="card-title">${destName}</h3>
                     <p class="card-desc">${destDesc}</p>
